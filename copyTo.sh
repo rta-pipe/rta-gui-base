@@ -12,8 +12,10 @@ to=$1
 cp $from/ctaGuiFront/ctaGuiFront/styles/plotly-style.html $to/ctaGuiFront/ctaGuiFront/styles/
 
 # Plotly web-components
+cp $from/ctaGuiFront/ctaGuiFront/templates/webcomp-example.html $to/ctaGuiFront/ctaGuiFront/templates/
 cp $from/ctaGuiFront/ctaGuiFront/templates/light-curve.html $to/ctaGuiFront/ctaGuiFront/templates/
-echo 'New templates: light-curve.html, '
+cp $from/ctaGuiFront/ctaGuiFront/templates/data-quality-histogram.html $to/ctaGuiFront/ctaGuiFront/templates/
+echo 'New templates: webcomp-example.html, light-curve.html, data-quality-histogram.html'
 
 # New Widgets
 cp $from/ctaGuiFront/ctaGuiFront/js/widget_analysisWidget.js $to/ctaGuiFront/ctaGuiFront/js/

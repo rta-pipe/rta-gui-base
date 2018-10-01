@@ -2,6 +2,24 @@
 
 This repository contains the new widgets for the rta scientific gui that is based on the [https://github.com/IftachSadeh/ctaOperatorGUI](Iftach's ctaOperatorGUI).
 
+## Development flow
+* Open branch
+* Develop
+  * Import a new web component from RTA-GUI-components in ctaOperatorGUI
+    * copy the component in the template folder
+    * import the component file in the template/view_common.jinja2 file
+    * create a new widget
+    * add the new widget to the allowed widgets (in ctaGUIUtils/py/utils.py)
+    * add the new widget to the view 300 (in js/utils_setupView.js)
+  * Update the copyTo/copyFrom scripts
+  * Run the scripts in order to import here the new files
+* Commit and push
+* Open pull request
+* When accepted
+  * Checkout on master
+  * git pull
+  * delete branch
+
 ## How to merge the ctaOperatorGUI with the new widgets
 - Clone the Iftach's ctaOperatorGUI with:
   ```bash
@@ -51,3 +69,14 @@ This repository contains the new widgets for the rta scientific gui that is base
 
 - Rename the ctaOperatorGUI folder.
 
+
+## Add a new plotly widget in the ctaOperatorGUI
+```bash
+tag0="plotlyWebComp"
+tag1="plotlywebcomp"
+tag2="PlotlyWebComp"
+
+cd ctaGuiFront/ctaGuiFront
+sed "s/emptyPlotlyExample/${tag0}/g" js/widget_emptyPlotlyExample.js | sed "s/emptyplotlyexample/${tag1}/g" | sed "s/EmptyPlotlyExample/${tag2}/g" > js/widget_${tag0}.js
+sed "s/emptyPlotlyExample/${tag0}/g" py/widget_emptyPlotlyExample.py | sed "s/emptyplotlyexample/${tag1}/g" | sed "s/EmptyPlotlyExample/${tag2}/g" > py/widget_${tag0}.py
+```

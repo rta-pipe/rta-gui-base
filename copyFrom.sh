@@ -18,8 +18,17 @@ mkdir -p $to/ctaGuiFront/ctaGuiFront/styles/
 cp $from/ctaGuiFront/ctaGuiFront/styles/plotly-style.html $to/ctaGuiFront/ctaGuiFront/styles/
 
 # Plotly web-components
+cp $from/ctaGuiFront/ctaGuiFront/templates/webcomp-example.html $to/ctaGuiFront/ctaGuiFront/templates/
 cp $from/ctaGuiFront/ctaGuiFront/templates/light-curve.html $to/ctaGuiFront/ctaGuiFront/templates/
+cp $from/ctaGuiFront/ctaGuiFront/templates/data-quality-histogram.html $to/ctaGuiFront/ctaGuiFront/templates/
+
 
 # New Widgets
-cp $from/ctaGuiFront/ctaGuiFront/js/widget_analysisWidget.js $to/ctaGuiFront/ctaGuiFront/js/
-cp $from/ctaGuiFront/ctaGuiFront/py/widget_analysisWidget.py $to/ctaGuiFront/ctaGuiFront/py/
+cp $from/ctaGuiFront/ctaGuiFront/js/widget_emptyPlotlyExample.js $to/ctaGuiFront/ctaGuiFront/js/
+cp $from/ctaGuiFront/ctaGuiFront/py/widget_emptyPlotlyExample.py $to/ctaGuiFront/ctaGuiFront/py/
+
+cp $from/ctaGuiFront/ctaGuiFront/js/widget_lightCurve.js $to/ctaGuiFront/ctaGuiFront/js/
+cp $from/ctaGuiFront/ctaGuiFront/py/widget_lightCurve.py $to/ctaGuiFront/ctaGuiFront/py/
+
+cp $from/ctaGuiFront/ctaGuiFront/js/widget_dqHistogram.js $to/ctaGuiFront/ctaGuiFront/js/
+cp $from/ctaGuiFront/ctaGuiFront/py/widget_dqHistogram.py $to/ctaGuiFront/ctaGuiFront/py/
