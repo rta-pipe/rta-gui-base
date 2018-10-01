@@ -1,0 +1,138 @@
+<link rel="import" href="/styles/plotly-style.html">
+
+
+
+<dom-module id="webcomp-example">
+  <template>
+    <style include="plotly-style"></style>
+
+    <div id="webcomp-example-div" style="{{stylestring}}"></div> <!--style="width:600px;height:400px;"-->
+  </template>
+
+  <script>
+
+    /**
+     * `webcomp-example`
+     * This element will display the webcomp-example plot
+     *
+     * @customElement
+     * @polymer
+     * @demo demo/index.html
+     */
+    class WebcompExample extends Polymer.Element {
+
+      // private properties
+      constructor() {
+        super();
+        this.plotName = 'webcomp-example-div';
+
+      }
+
+      ready() {
+        super.ready();
+        Plotly.newPlot( this.getPlot(), [this.pointsTraceLayout], this.layout);
+      }
+
+      ////////////////////////////////////////////////////////////////////////
+      // @Private
+      getPlot() { return this.shadowRoot.querySelector("#"+this.plotName); }
+
+
+
+      //////////////////////////////////////////
+      // PUBLIC API
+      //////////////////////////////////////////
+
+      static get is() { return 'webcomp-example'; }
+      static get properties() {
+        return {
+          elemName: {
+            type: String,
+            value: 'webcomp-example'
+          },
+          width: {
+            type: String,
+            value: "400px"
+          },
+          height: {
+            type: String,
+            value: "400px"
+          },
+          plottitle: {
+            type: String,
+            value: 'Web component example'
+          },
+          xlabel: {
+            type: String,
+            value: 'Label not set',
+          },
+          ylabel: {
+            type: String,
+            value: 'Label not set',
+          },
+          stylestring: {
+            type: String,
+            computed: 'computeStyleString(width, height)'
+          },
+          layout: {
+            type: Object,
+            computed: 'computeLayout(plottitle, xlabel, ylabel)'
+          },
+          pointsTraceLayout: {
+            type: Object,
+            computed: 'computePointsTraceLayout()'
+          },
+          debug: {
+            type: Boolean,
+            value: false
+          }
+        };
+      }
+
+      computeStyleString(width, height) {
+        return "width:"+width+"; height:"+height+";"
+      }
+      computeLayout(plottitle, xlabel, ylabel) {
+        return {
+          showlegend: false,
+          title: plottitle,
+          xaxis: {
+            //range: [0, 10000],
+            //type: 'log',
+            title: xlabel,
+            linewidth:1,
+           },
+          yaxis: {
+            //type: 'log',
+            title: ylabel,
+            linewidth:1,
+           }
+        }
+      }
+      computePointsTraceLayout() {
+        return {
+                  x: [],
+                  y: []
+               }
+      }
+
+
+      addPoint(x,y) {
+        var newPoint = { x: [[x]], y: [[y]] };
+        //console.log(x)
+        Plotly.extendTraces(this.getPlot(), newPoint, [0]);
+      }
+
+      resetPlot() {
+        //console.log("Resetting plot");
+        this.pointsTraceLayout["x"] = [];
+        this.pointsTraceLayout["y"] = [];
+
+        Plotly.react( this.getPlot(), [this.pointsTraceLayout], this.layout);
+      }
+
+    }
+    window.customElements.define(WebcompExample.is, WebcompExample);
+
+  </script>
+</dom-module>
