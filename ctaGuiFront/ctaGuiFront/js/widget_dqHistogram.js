@@ -36,8 +36,8 @@ sock.widgetTable[mainScriptTag] = function (optIn) {
   let w0 = 12;
   let divKey = "main";
 
-  console.log("sockDqHistogram",sockDqHistogram)
-  console.log("sockDqHistogram",mainDqHistogram)
+
+
 
   optIn.widgetFunc = {
     SockFunc: sockDqHistogram,
@@ -54,7 +54,7 @@ sock.widgetTable[mainScriptTag] = function (optIn) {
     w: w0,
     h: h0,
     content: "<div id='" + optIn.baseName + divKey + "'></div>"
-  }
+  };
 
   sock.addToTable(optIn);
 }
@@ -114,17 +114,17 @@ let mainDqHistogram = function (optIn) {
       id: sideId,
       nIcon: dataIn.nIcon,
       iconDivV: iconDivV
-    })
+    });
 
     plotlyMain.initData(dataIn);
-  };
+  }
   this.initData = initData;
 
   // ---------------------------------------------------------------------------------------------------
   //
   // ---------------------------------------------------------------------------------------------------
   function updateData (dataIn) {
-    plotlyMain.updateData(dataIn.data)
+    plotlyMain.updateData(dataIn.data);
   };
   this.updateData = updateData;
 
@@ -173,10 +173,10 @@ let mainDqHistogram = function (optIn) {
 
         runWhenReady({
           pass: function () {
-            return hasVar(plotlyTag.main.widget.getEle(plotlyDivId))
+            return hasVar(plotlyTag.main.widget.getEle(plotlyDivId));
           },
           execute: function () {
-            initData(dataIn)
+            initData(dataIn);
           }
         })
 
@@ -193,10 +193,10 @@ let mainDqHistogram = function (optIn) {
 
       runWhenReady({
         pass: function () {
-          return locker.isFree(tagDqHistogram + "updateData")
+          return locker.isFree(tagDqHistogram + "updateData");
         },
         execute: function () {
-          locker.remove("inInit")
+          locker.remove("inInit");
         }
       })
     }
@@ -210,9 +210,9 @@ let mainDqHistogram = function (optIn) {
     function updateData (dataIn) {
       if (!locker.isFree("inInit")) {
         setTimeout(function () {
-          updateData(dataIn)
-        }, 10)
-        return
+          updateData(dataIn);
+        }, 10);
+        return;
       }
 
       runLoop.push({ tag: "updateData", data: dataIn }); //, time:dataIn.emitTime
