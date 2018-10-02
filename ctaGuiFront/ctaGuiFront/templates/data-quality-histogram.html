@@ -1,0 +1,174 @@
+<link rel="import" href="/styles/plotly-style.html">
+
+
+<dom-module id="data-quality-histogram">
+  <template>
+    <style include="plotly-style"></style>
+
+    <div id="data-quality-histogram-div" style="{{stylestring}}"></div> <!--style="width:600px;height:400px;"-->
+  </template>
+
+  <script>
+
+    /**
+     * `data-quality-histogram`
+     * This element will display the data-quality-histogram plot
+     *
+     * @customElement
+     * @polymer
+     * @demo demo/index.html
+     */
+    class DataQualityHistogram extends Polymer.Element {
+
+      // private properties
+      constructor() {
+        super();
+        this.plotName = 'data-quality-histogram-div';
+
+      }
+
+      ready() {
+        super.ready();
+        Plotly.newPlot( this.getPlot(), [this.pointsTraceLayout], this.layout);
+      }
+
+      ////////////////////////////////////////////////////////////////////////
+      // @Private
+      getPlot() { return this.shadowRoot.querySelector("#"+this.plotName); }
+
+
+
+      //////////////////////////////////////////
+      // PUBLIC API
+      //////////////////////////////////////////
+
+      static get is() { return 'data-quality-histogram'; }
+      static get properties() {
+        return {
+          elemName: {
+            type: String,
+            value: 'data-quality-histogram'
+          },
+          width: {
+            type: String,
+            value: "400px"
+          },
+          height: {
+            type: String,
+            value: "400px"
+          },
+          plottitle: {
+            type: String,
+            value: 'Title not set'
+          },
+          xlabel: {
+            type: String,
+            value: 'Label not set',
+          },
+          ylabel: {
+            type: String,
+            value: 'Label not set',
+          },
+          stylestring: {
+            type: String,
+            computed: 'computeStyleString(width, height)'
+          },
+          layout: {
+            type: Object,
+            computed: 'computeLayout(plottitle, xlabel, ylabel)'
+          },
+          pointsTraceLayout: {
+            type: Object,
+            computed: 'computePointsTraceLayout()'
+          },
+          debug: {
+            type: Boolean,
+            value: false
+          }
+        };
+      }
+
+      computeStyleString(width, height) {
+        return "width:"+width+"; height:"+height+";"
+      }
+      computeLayout(plottitle, xlabel, ylabel) {
+        return {
+          showlegend: false,
+          title: plottitle,
+          xaxis: {
+            //range: [0, 10000],
+            //type: 'log',
+            title: xlabel,
+            linewidth:1,
+           },
+          yaxis: {
+            //type: 'log',
+            title: ylabel,
+            linewidth:1,
+           }
+        }
+      }
+      computePointsTraceLayout() {
+        return {
+                  x: [],
+                  type: 'histogram',
+                  opacity: 0.75,
+                  marker: {
+                    color: 'rgb(0, 0, 255)',
+                    size: 6,
+                    symbol: ['circle']
+                  }
+               }
+      }
+
+
+      configure(mine, maxe, eis){
+        if (this.maxEnergy <= this.minEnergy){
+          alert("[DataQualityHistogram] Error, maxEnergy cannot be less or equal than minEnergy!");
+          console.log("[DataQualityHistogram] Error, maxEnergy cannot be less or equal than minEnergy!");
+          return;
+        }
+        if (this.binSize <= 0){
+          alert("[DataQualityHistogram] Error, binSize cannot be less or equal than 0!");
+          console.log("[DataQualityHistogram] Error, binSize cannot be less or equal than 0!");
+          return;
+        }
+        if(this.binSize > (this.maxEnergy-this.minEnergy)){
+          alert("[DataQualityHistogram] Error, binSize cannot be grater than (maxEnergy-minEnergy)!")
+          console.log("[DataQualityHistogram] Error, binSize cannot be grater than (maxEnergy-minEnergy)!");
+          return;
+        }
+
+
+        this.pointsTraceLayout["xbins"] = {};
+        this.pointsTraceLayout["autobinx"] = false;
+        this.pointsTraceLayout["xbins"]["start"] = mine;
+        this.pointsTraceLayout["xbins"]["size"] = eis;
+        this.pointsTraceLayout["xbins"]["end"] = maxe;
+
+        //console.log(this.pointsTraceLayout);
+        //console.log(this.getPlot());
+
+        Plotly.react( this.getPlot(), [this.pointsTraceLayout], this.layout);
+
+
+
+      }
+
+      addPoint(x) {
+        var newPoint = { x: [[x]] };
+        //console.log(x)
+        Plotly.extendTraces(this.getPlot(), newPoint, [0]);
+      }
+
+      resetPlot() {
+        //console.log("Resetting plot");
+        this.pointsTraceLayout["x"] = [];
+        Plotly.react( this.getPlot(), [this.pointsTraceLayout], this.layout);
+      }
+
+    }
+    window.customElements.define(DataQualityHistogram.is, DataQualityHistogram);
+
+  </script>
+</dom-module>
