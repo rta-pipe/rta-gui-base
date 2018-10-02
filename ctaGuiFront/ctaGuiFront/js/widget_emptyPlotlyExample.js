@@ -103,8 +103,10 @@ let mainEmptyPlotlyExample = function (optIn) {
   //
   // ---------------------------------------------------------------------------------------------------
   function initData (dataIn) {
-    if (sock.multipleInit({ id: widgetId, data: dataIn })) return
-
+    if (sock.multipleInit({ id: widgetId, data: dataIn })) {
+      return
+    }
+    
     window.sideDiv = sock.setSideDiv({
       id: sideId,
       nIcon: dataIn.nIcon,
