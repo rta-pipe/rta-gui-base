@@ -1,11 +1,13 @@
 <link rel="import" href="/styles/plotly-style.html">
 
 
+
+
 <dom-module id="data-quality-histogram">
   <template>
     <style include="plotly-style"></style>
 
-    <div id="data-quality-histogram-div" style="{{stylestring}}"></div> <!--style="width:600px;height:400px;"-->
+    <div id="data-quality-histogram-div"></div> <!--style="{{stylestring}}"-->
   </template>
 
   <script>
@@ -23,9 +25,34 @@
       // private properties
       constructor() {
         super();
+
         this.plotName = 'data-quality-histogram-div';
 
+        this.customListeners = {
+          _resizePlotListener: function() {
+            let plotDiv = this.getPlot()
+            Plotly.Plots.resize(plotDiv);
+          }
+        }
+        this._boundListener = this.customListeners._resizePlotListener.bind(this);
+
       }
+
+      ////////////////////////////////////////////////////////////////////////
+      // @Private
+      connectedCallback() {
+        super.connectedCallback();
+        window.addEventListener('resize', this._boundListener);
+      }
+
+
+      ////////////////////////////////////////////////////////////////////////
+      // @Private
+      disconnectedCallback() {
+        super.disconnectedCallback();
+        window.removeEventListener('onresize', this._boundListener);
+      }
+
 
       ready() {
         super.ready();
@@ -35,7 +62,6 @@
       ////////////////////////////////////////////////////////////////////////
       // @Private
       getPlot() { return this.shadowRoot.querySelector("#"+this.plotName); }
-
 
 
       //////////////////////////////////////////
@@ -49,6 +75,7 @@
             type: String,
             value: 'data-quality-histogram'
           },
+          /*
           width: {
             type: String,
             value: "400px"
@@ -57,6 +84,7 @@
             type: String,
             value: "400px"
           },
+          */
           plottitle: {
             type: String,
             value: 'Title not set'
@@ -69,10 +97,12 @@
             type: String,
             value: 'Label not set',
           },
+          /*
           stylestring: {
             type: String,
             computed: 'computeStyleString(width, height)'
           },
+          */
           layout: {
             type: Object,
             computed: 'computeLayout(plottitle, xlabel, ylabel)'
@@ -88,9 +118,11 @@
         };
       }
 
+      /*
       computeStyleString(width, height) {
         return "width:"+width+"; height:"+height+";"
       }
+      */
       computeLayout(plottitle, xlabel, ylabel) {
         return {
           showlegend: false,

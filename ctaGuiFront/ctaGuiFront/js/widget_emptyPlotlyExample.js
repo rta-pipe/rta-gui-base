@@ -103,10 +103,9 @@ let mainEmptyPlotlyExample = function (optIn) {
   //
   // ---------------------------------------------------------------------------------------------------
   function initData (dataIn) {
-    if (sock.multipleInit({ id: widgetId, data: dataIn })) {
-      return
-    }
-    
+
+    if (sock.multipleInit({ id: widgetId, data: dataIn })) return
+
     window.sideDiv = sock.setSideDiv({
       id: sideId,
       nIcon: dataIn.nIcon,
@@ -145,6 +144,7 @@ let mainEmptyPlotlyExample = function (optIn) {
     //
     // ---------------------------------------------------------------------------------------------------
     function initData (dataIn) {
+
       // ---------------------------------------------------------------------------------------------------
       // create the main plotly element
       // ---------------------------------------------------------------------------------------------------
@@ -156,8 +156,6 @@ let mainEmptyPlotlyExample = function (optIn) {
 
         let plotlyDiv = document.createElement('webcomp-example')
         plotlyDiv.setAttribute("id", plotlyDivId);
-        plotlyDiv.setAttribute("width", "100%");
-        plotlyDiv.setAttribute("height", "900px");
         plotlyDiv.setAttribute("plottitle", "Webcomp example");
         plotlyDiv.setAttribute("xLabel", "X label");
         plotlyDiv.setAttribute("yLabel", "Y label");
