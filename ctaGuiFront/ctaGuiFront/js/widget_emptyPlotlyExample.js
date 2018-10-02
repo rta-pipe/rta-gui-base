@@ -29,7 +29,9 @@ var mainScriptTag = 'emptyPlotlyExample'
 window.loadScript({ source:mainScriptTag, script:"/bower_components/plotly.js/dist/plotly.min.js"});
 
 // ---------------------------------------------------------------------------------------------------
+console.log("ciao1")
 sock.widgetTable[mainScriptTag] = function (optIn) {
+  console.log("ciao2")
   let x0 = 0
   let y0 = 0
   let h0 = 5
@@ -54,6 +56,7 @@ sock.widgetTable[mainScriptTag] = function (optIn) {
   }
 
   sock.addToTable(optIn)
+  console.log("ciao3")
 }
 
 // ---------------------------------------------------------------------------------------------------
@@ -66,6 +69,7 @@ let sockEmptyPlotlyExample = function (optIn) {}
 // here we go with the content of this particular widget
 // ---------------------------------------------------------------------------------------------------
 let mainEmptyPlotlyExample = function (optIn) {
+  console.log("ciao4")
   // let myUniqueId = unique()
   let widgetType = optIn.widgetType
   let widgetSource = optIn.widgetSource
@@ -85,6 +89,7 @@ let mainEmptyPlotlyExample = function (optIn) {
 
   let plotlyTag = {}
   $.each(widgetEle, function (index, eleNow) {
+    console.log("ciao5")
     plotlyTag[eleNow.id] = {
       id: tagArrZoomerPlotsSvg + eleNow.id,
       widget: eleNow.widget,
@@ -98,15 +103,16 @@ let mainEmptyPlotlyExample = function (optIn) {
 
   // function loop
   let runLoop = new RunLoop({ tag: widgetId })
+  console.log("ciao6")
 
   // ---------------------------------------------------------------------------------------------------
   //
   // ---------------------------------------------------------------------------------------------------
   function initData (dataIn) {
-    if (sock.multipleInit({ id: widgetId, data: dataIn })) {
-      return
-    }
-    
+    console.log("ciao7")
+
+    if (sock.multipleInit({ id: widgetId, data: dataIn })) return
+
     window.sideDiv = sock.setSideDiv({
       id: sideId,
       nIcon: dataIn.nIcon,
@@ -116,11 +122,13 @@ let mainEmptyPlotlyExample = function (optIn) {
     plotlyMain.initData(dataIn)
   }
   this.initData = initData
+  console.log("this.initData",this.initData)
 
   // ---------------------------------------------------------------------------------------------------
   //
   // ---------------------------------------------------------------------------------------------------
   function updateData (dataIn) {
+    console.log("ciao8")
     plotlyMain.updateData(dataIn.data)
   }
   this.updateData = updateData
@@ -129,6 +137,7 @@ let mainEmptyPlotlyExample = function (optIn) {
   //
   // ---------------------------------------------------------------------------------------------------
   let PlotlyMain = function () {
+    console.log("ciao9")
     let com = {}
     let svg = {}
     // let thisMain = this
@@ -145,6 +154,8 @@ let mainEmptyPlotlyExample = function (optIn) {
     //
     // ---------------------------------------------------------------------------------------------------
     function initData (dataIn) {
+      console.log("ciao10")
+
       // ---------------------------------------------------------------------------------------------------
       // create the main plotly element
       // ---------------------------------------------------------------------------------------------------
@@ -156,8 +167,6 @@ let mainEmptyPlotlyExample = function (optIn) {
 
         let plotlyDiv = document.createElement('webcomp-example')
         plotlyDiv.setAttribute("id", plotlyDivId);
-        plotlyDiv.setAttribute("width", "100%");
-        plotlyDiv.setAttribute("height", "900px");
         plotlyDiv.setAttribute("plottitle", "Webcomp example");
         plotlyDiv.setAttribute("xLabel", "X label");
         plotlyDiv.setAttribute("yLabel", "Y label");

@@ -1,5 +1,8 @@
 <link rel="import" href="/styles/plotly-style.html">
 
+
+<!--<link rel="import" href = "/imports/mathJax-import.html">-->
+
 <dom-module id="light-curve">
   <template>
 
@@ -56,17 +59,18 @@
       </div>
 
       <!-- Plotly plot -->
-      <div id="light-curve-div" style="{{stylestring}}"></div> <!--style="width:600px;height:400px;"-->
+      <div id="light-curve-div"></div> <!--style="{{stylestring}}-->
 
 
+
+          <br>
+          <br>
+          <br>
+          <br>
+          <br>
 
       <!-- Debug informations -->
       <div hidden$="[[!debug]]" id="debug-div">
-        <br>
-        <br>
-        <br>
-        <br>
-        <br>
         <table>
           <tr>
             <td>
@@ -119,6 +123,7 @@
       // private properties
       constructor() {
         super();
+
         this.plotName = 'light-curve-div';
 
         this.countData = 0; // global points counter
@@ -126,6 +131,14 @@
         this.performanceTime = 0;
         this.annotations = []; // the annotations are independent from the classes
         this.annotationenabled = false;
+
+        this.customListeners = {
+          _resizePlotListener: function() {
+            let plotDiv = this.getPlot()
+            Plotly.Plots.resize(plotDiv);
+          }
+        }
+        this._boundListener = this.customListeners._resizePlotListener.bind(this);
       }
 
       ready() {
@@ -134,6 +147,21 @@
         this.initPerformancePlot(true);
       }
 
+
+      ////////////////////////////////////////////////////////////////////////
+      // @Private
+      connectedCallback() {
+        super.connectedCallback();
+        window.addEventListener('resize', this._boundListener);
+      }
+
+
+      ////////////////////////////////////////////////////////////////////////
+      // @Private
+      disconnectedCallback() {
+        super.disconnectedCallback();
+        window.removeEventListener('onresize', this._boundListener);
+      }
 
       ////////////////////////////////////////////////////////////////////////
       // @Private
@@ -248,6 +276,7 @@
             type: String,
             value: 'light-curve'
           },
+          /*
           width: {
             type: String,
             value: "400px"
@@ -256,6 +285,7 @@
             type: String,
             value: "400px"
           },
+          */
           plottitle: {
             type: String,
             value: 'Title not set'
@@ -296,10 +326,11 @@
             type: Boolean,
             value: false
           },
+          /*
           stylestring: {
             type: String,
             computed: 'computeStyleString(width, height)'
-          },
+          },*/
           layout: {
             type: Object,
             computed: 'computeLayout(plottitle, xlabel, ylabel)'
@@ -314,9 +345,11 @@
           }
         };
       }
+      /*
       computeStyleString(width, height) {
         return "width:"+width+"; height:"+height+";"
       }
+      */
       computeLayout(plottitle, xlabel, ylabel) {
         return {
           showlegend: false,

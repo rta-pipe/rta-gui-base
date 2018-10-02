@@ -1,4 +1,4 @@
-"use strict";
+'use strict'
 // ---------------------------------------------------------------------------------------------------
 // ---------------------------------------------------------------------------------------------------
 // stric mode for the following script or function (must come at the very begining!)
@@ -7,8 +7,8 @@
 // ---------------------------------------------------------------------------------------------------
 // mainScriptTag used locally (will be overriden by other scripts...)
 // must be compatible with the name of this js file, according to:
-//    "/js/widget_"+mainScriptTag+".js"
-var mainScriptTag = "dqHistogram";
+//    '/js/widget_'+mainScriptTag+'.js'
+var mainScriptTag = 'dqHistogram'
 // ---------------------------------------------------------------------------------------------------
 
 /* global $ */
@@ -26,15 +26,15 @@ var mainScriptTag = "dqHistogram";
 /* global unique */
 
 // // load additional js files:
-window.loadScript({ source:mainScriptTag, script:"/bower_components/plotly.js/dist/plotly.min.js"});
+window.loadScript({ source:mainScriptTag, script:'/bower_components/plotly.js/dist/plotly.min.js'})
 
 // ---------------------------------------------------------------------------------------------------
 sock.widgetTable[mainScriptTag] = function (optIn) {
-  let x0 = 0;
-  let y0 = 0;
-  let h0 = 5;
-  let w0 = 12;
-  let divKey = "main";
+  let x0 = 0
+  let y0 = 0
+  let h0 = 5
+  let w0 = 12
+  let divKey = 'main'
 
 
 
@@ -42,9 +42,9 @@ sock.widgetTable[mainScriptTag] = function (optIn) {
   optIn.widgetFunc = {
     SockFunc: sockDqHistogram,
     MainFunc: mainDqHistogram
-  };
-  optIn.widgetDivId = optIn.widgetId + "widgetDiv";
-  optIn.eleProps = {};
+  }
+  optIn.widgetDivId = optIn.widgetId + 'widgetDiv'
+  optIn.eleProps = {}
   optIn.eleProps[divKey] = {
     autoPos: true,
     isDarkEle: true,
@@ -54,15 +54,15 @@ sock.widgetTable[mainScriptTag] = function (optIn) {
     w: w0,
     h: h0,
     content: "<div id='" + optIn.baseName + divKey + "'></div>"
-  };
+  }
 
-  sock.addToTable(optIn);
+  sock.addToTable(optIn)
 }
 
 // ---------------------------------------------------------------------------------------------------
 // additional socket events for this particular widget type
 // ---------------------------------------------------------------------------------------------------
-let sockDqHistogram = function (optIn) {};
+let sockDqHistogram = function (optIn) {}
 
 // ---------------------------------------------------------------------------------------------------
 // ---------------------------------------------------------------------------------------------------
@@ -70,79 +70,79 @@ let sockDqHistogram = function (optIn) {};
 // ---------------------------------------------------------------------------------------------------
 let mainDqHistogram = function (optIn) {
   // let myUniqueId = unique()
-  let widgetType = optIn.widgetType;
-  let widgetSource = optIn.widgetSource;
-  let tagArrZoomerPlotsSvg = optIn.baseName;
-  let widgetId = optIn.widgetId;
-  let widgetEle = optIn.widgetEle;
-  let iconDivV = optIn.iconDivV;
-  let sideId = optIn.sideId;
+  let widgetType = optIn.widgetType
+  let widgetSource = optIn.widgetSource
+  let tagArrZoomerPlotsSvg = optIn.baseName
+  let widgetId = optIn.widgetId
+  let widgetEle = optIn.widgetEle
+  let iconDivV = optIn.iconDivV
+  let sideId = optIn.sideId
 
-  // let isSouth = window.__nsType__ === "S"
+  // let isSouth = window.__nsType__ === 'S'
   // let thisDqHistogram = this
 
-  let plotlyExampleEleId = "plotly-dq-histogram";
+  let plotlyExampleEleId = 'plotly-dq-histogram'
 
 
 
 
-  let plotlyTag = {};
+  let plotlyTag = {}
   $.each(widgetEle, function (index, eleNow) {
     plotlyTag[eleNow.id] = {
       id: tagArrZoomerPlotsSvg + eleNow.id,
       widget: eleNow.widget,
       whRatio: eleNow.w / eleNow.h
     }
-  });
+  })
 
   // delay counters
-  let locker = new Locker();
-  locker.add("inInit");
+  let locker = new Locker()
+  locker.add('inInit')
 
   // function loop
-  let runLoop = new RunLoop({ tag: widgetId });
+  let runLoop = new RunLoop({ tag: widgetId })
 
   // ---------------------------------------------------------------------------------------------------
   //
   // ---------------------------------------------------------------------------------------------------
   function initData (dataIn) {
     if (sock.multipleInit({ id: widgetId, data: dataIn })){
-      return;
+      return
     }
 
     window.sideDiv = sock.setSideDiv({
       id: sideId,
       nIcon: dataIn.nIcon,
       iconDivV: iconDivV
-    });
+    })
 
-    plotlyMain.initData(dataIn);
+    plotlyMain.initData(dataIn)
   }
-  this.initData = initData;
+  this.initData = initData
 
   // ---------------------------------------------------------------------------------------------------
   //
   // ---------------------------------------------------------------------------------------------------
   function updateData (dataIn) {
-    plotlyMain.updateData(dataIn.data);
-  };
-  this.updateData = updateData;
+    plotlyMain.updateData(dataIn.data)
+  }
+  this.updateData = updateData
 
   // ---------------------------------------------------------------------------------------------------
   //
   // ---------------------------------------------------------------------------------------------------
   let PlotlyMain = function () {
-    let com = {};
-    let svg = {};
+    let com = {}
+    let svg = {}
     // let thisMain = this
 
-    let lenD = {};
-    lenD.w = {};
-    lenD.h = {};
-    lenD.w[0] = 1000;
-    lenD.h[0] = lenD.w[0] / plotlyTag.main.whRatio;
+    let lenD = {}
+    lenD.w = {}
+    lenD.h = {}
+    lenD.w[0] = 1000
+    lenD.h[0] = lenD.w[0] / plotlyTag.main.whRatio
 
-    let tagDqHistogram = "dqHistogram";
+    let tagDqHistogram = 'dqHistogram'
 
     // ---------------------------------------------------------------------------------------------------
     //
@@ -151,71 +151,69 @@ let mainDqHistogram = function (optIn) {
       // ---------------------------------------------------------------------------------------------------
       // create the main plotly element
       // ---------------------------------------------------------------------------------------------------
-      let plotlyDivId = plotlyExampleEleId;
-      let plotlyDiv = plotlyTag.main.widget.getEle(plotlyDivId);
+      let plotlyDivId = plotlyExampleEleId
+      let plotlyDiv = plotlyTag.main.widget.getEle(plotlyDivId)
 
       if (!hasVar(plotlyDiv)) {
-        let parent = plotlyTag.main.widget.getEle(plotlyTag.main.id);
+        let parent = plotlyTag.main.widget.getEle(plotlyTag.main.id)
 
-        let plotlyDiv = document.createElement("data-quality-histogram");
-        plotlyDiv.setAttribute("id", plotlyDivId);
-        plotlyDiv.setAttribute("width", "100%");
-        plotlyDiv.setAttribute("height",  "900px");
-        plotlyDiv.setAttribute("plottitle", "Webcomp example");
-        plotlyDiv.setAttribute("xLabel", "Event property values");
-        plotlyDiv.setAttribute("yLabel", "Events count");
-        plotlyDiv.id = plotlyDivId;
+        let plotlyDiv = document.createElement('data-quality-histogram')
+        plotlyDiv.setAttribute('id', plotlyDivId)
+        plotlyDiv.setAttribute('plottitle', 'Webcomp example')
+        plotlyDiv.setAttribute('xLabel', 'Event property values')
+        plotlyDiv.setAttribute('yLabel', 'Events count')
+        plotlyDiv.id = plotlyDivId
 
-        appendToDom(parent, plotlyDiv);
+        appendToDom(parent, plotlyDiv)
 
-        plotlyTag.main.widget.getEle(plotlyExampleEleId).configure(0, 1, 0.01);
+        plotlyTag.main.widget.getEle(plotlyExampleEleId).configure(0, 1, 0.01)
 
 
         runWhenReady({
           pass: function () {
-            return hasVar(plotlyTag.main.widget.getEle(plotlyDivId));
+            return hasVar(plotlyTag.main.widget.getEle(plotlyDivId))
           },
           execute: function () {
-            initData(dataIn);
+            initData(dataIn)
           }
         })
 
-        return;
+        return
       }
-      sock.emitMouseMove({ eleIn: plotlyDiv, data: { widgetId: widgetId } });
+      sock.emitMouseMove({ eleIn: plotlyDiv, data: { widgetId: widgetId } })
 
 
 
       // ---------------------------------------------------------------------------------------------------
       //
       // ---------------------------------------------------------------------------------------------------
-      updateDataOnce(dataIn.data);
+      updateDataOnce(dataIn.data)
 
       runWhenReady({
         pass: function () {
-          return locker.isFree(tagDqHistogram + "updateData");
+          return locker.isFree(tagDqHistogram + 'updateData')
         },
         execute: function () {
-          locker.remove("inInit");
+          locker.remove('inInit')
         }
       })
     }
-    this.initData = initData;
+    this.initData = initData
 
     // ---------------------------------------------------------------------------------------------------
     //
     // ---------------------------------------------------------------------------------------------------
-    runLoop.init({ tag: "updateData", func: updateDataOnce, nKeep: 1 });
+    runLoop.init({ tag: 'updateData', func: updateDataOnce, nKeep: 1 })
 
     function updateData (dataIn) {
-      if (!locker.isFree("inInit")) {
+      if (!locker.isFree('inInit')) {
         setTimeout(function () {
-          updateData(dataIn);
-        }, 10);
-        return;
+          updateData(dataIn)
+        }, 10)
+        return
       }
 
-      runLoop.push({ tag: "updateData", data: dataIn }); //, time:dataIn.emitTime
+      runLoop.push({ tag: 'updateData', data: dataIn }) //, time:dataIn.emitTime
     }
 
 
@@ -224,23 +222,23 @@ let mainDqHistogram = function (optIn) {
     // some random stuff for illustration
     // ---------------------------------------------------------------------------------------------------
     function updateDataOnce (dataIn) {
-      if (!locker.isFreeV([tagDqHistogram + "updateData"])) {
-        // console.log("will delay updateData");
+      if (!locker.isFreeV([tagDqHistogram + 'updateData'])) {
+        // console.log('will delay updateData')
         setTimeout(function () {
           updateData(dataIn)
         }, 10)
         return
       }
-      locker.add(tagDqHistogram + "updateData");
+      locker.add(tagDqHistogram + 'updateData')
 
-      plotlyTag.main.widget.getEle(plotlyExampleEleId).addPoint(dataIn.rnd);
+      plotlyTag.main.widget.getEle(plotlyExampleEleId).addPoint(dataIn.rnd)
 
-      locker.remove(tagDqHistogram + "updateData");
+      locker.remove(tagDqHistogram + 'updateData')
     }
-    this.updateData = updateData;
+    this.updateData = updateData
   }
 
-  let plotlyMain = new PlotlyMain();
+  let plotlyMain = new PlotlyMain()
 }
 // ---------------------------------------------------------------------------------------------------
 // ---------------------------------------------------------------------------------------------------

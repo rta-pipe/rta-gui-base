@@ -6,7 +6,7 @@
   <template>
     <style include="plotly-style"></style>
 
-    <div id="webcomp-example-div" style="{{stylestring}}"></div> <!--style="width:600px;height:400px;"-->
+    <div id="webcomp-example-div"></div> <!--style="{{stylestring}}"-->
   </template>
 
   <script>
@@ -26,11 +26,34 @@
         super();
         this.plotName = 'webcomp-example-div';
 
+        this.customListeners = {
+          _resizePlotListener: function() {
+            let plotDiv = this.getPlot()
+            Plotly.Plots.resize(plotDiv);
+          }
+        }
+        this._boundListener = this.customListeners._resizePlotListener.bind(this);
+
       }
 
       ready() {
         super.ready();
         Plotly.newPlot( this.getPlot(), [this.pointsTraceLayout], this.layout);
+      }
+
+      ////////////////////////////////////////////////////////////////////////
+      // @Private
+      connectedCallback() {
+        super.connectedCallback();
+        window.addEventListener('resize', this._boundListener);
+      }
+
+
+      ////////////////////////////////////////////////////////////////////////
+      // @Private
+      disconnectedCallback() {
+        super.disconnectedCallback();
+        window.removeEventListener('onresize', this._boundListener);
       }
 
       ////////////////////////////////////////////////////////////////////////
@@ -50,6 +73,7 @@
             type: String,
             value: 'webcomp-example'
           },
+          /*
           width: {
             type: String,
             value: "400px"
@@ -57,7 +81,7 @@
           height: {
             type: String,
             value: "400px"
-          },
+          },*/
           plottitle: {
             type: String,
             value: 'Web component example'
@@ -70,10 +94,12 @@
             type: String,
             value: 'Label not set',
           },
+          /*
           stylestring: {
             type: String,
             computed: 'computeStyleString(width, height)'
           },
+          */
           layout: {
             type: Object,
             computed: 'computeLayout(plottitle, xlabel, ylabel)'
@@ -89,9 +115,11 @@
         };
       }
 
+      /*
       computeStyleString(width, height) {
         return "width:"+width+"; height:"+height+";"
       }
+      */
       computeLayout(plottitle, xlabel, ylabel) {
         return {
           showlegend: false,
