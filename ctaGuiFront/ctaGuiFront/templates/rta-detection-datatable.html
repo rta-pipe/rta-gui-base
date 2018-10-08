@@ -1,0 +1,371 @@
+<!--
+TODO
+- - - - - AITOFF
+  fitsfile = images_array[i].substr(0, images_array[i].lastIndexOf("sky1.png")) + "cube.fits";
+  dataSet[i][j] = '<button type="submit" iduo ="open" onclick="goToImage('+i+');" class="btn btn-success">Select Map</button>';
+  dataSet[i][j] = "<button onclick=\"loadNewJs9LightWindow('"+fitsfile+"')\" class='btn btn-success'>Analize</button>";
+
+- - - - - JS9
+
+- - - - - ADDING https://www.webcomponents.org/element/IftachSadeh/paper-range-slider for property filtering on SEARCH
+-->
+
+<dom-module id="rta-detection-datatable">
+  <template>
+
+    <h3>rta-detection-datatable</h3>
+
+    <paper-datatable-card id="datatableCard" header="Detection list table" page-size="10" data-source="{{dataSource}}" id-property="id">
+      <div slot="toolbar-main">
+        <paper-input value="{{searchTerm}}" on-input="_retrieveResults" label="Search for label..." style="display:inline-block" no-label-float>
+          <div prefix>
+            <iron-icon icon="search"></iron-icon>
+          </div>
+        </paper-input>
+        <paper-icon-button icon="refresh" on-tap="_retrieveResults"></paper-icon-button>
+      </div>
+      <paper-datatable id="datatable" on-row-tap="_rowTapped">
+        <div no-results>
+          Loading or no more items...
+        </div>
+
+        <!--Attributes: sorted inactive, sortable, edit-icon dialog  format-value="{{clip}}" style="min-width: 320px"-->
+        <paper-datatable-column id="id" header="Id" property="id" type="Number" tooltip="sort_on:id" inactive></paper-datatable-column>
+        <paper-datatable-column id="label" header="Label" property="label" type="String" tooltip="sort_on:label" sortable></paper-datatable-column>
+        <paper-datatable-column id="sqrtts" header="sqrt(TS)" property="sqrtts" type="Number" tooltip="sort_on:sqrtts" sortable ></paper-datatable-column>
+        <paper-datatable-column id="flux" header="Flux" property="flux" type="Number" tooltip="sort_on:flux.y" sortable>
+          <template>
+            <span>[[value.y]] +/-</span>
+            <span>[[value.flux_err]] ^10-16</span>
+          </template>
+        </paper-datatable-column>
+        <paper-datatable-column id="t_mjd" header="Time MJD" property="t_mjd" type="Number" sortable tooltip="sort_on:t_mjd.t_stop_mjd" >
+          <template>
+            <span>[[value.t_start_mjd]] - </span>
+            <span>[[value.t_stop_mjd]]</span>
+          </template>
+        </paper-datatable-column>
+        <paper-datatable-column id="ra" header="ra" property="ra" type="Number" sortable tooltip="sort_on:ra"></paper-datatable-column>
+        <paper-datatable-column id="dec" header="dec" property="dec" type="Number" sortable tooltip="sort_on:dec" ></paper-datatable-column>
+        <paper-datatable-column id="t_tt" header="Time TT" property="t_tt" type="Number" sortable tooltip="sort_on:t_tt.t_stop_tt">
+          <template>
+            <span>[[value.t_start_tt]] - </span>
+            <span>[[value.t_stop_tt]]</span>
+          </template>
+        </paper-datatable-column>
+        <paper-datatable-column id="detectionid" header="Detection id" property="detectionid" type="Number" sortable tooltip="sort_on:detectionid"></paper-datatable-column>
+
+      </paper-datatable>
+    </paper-datatable-card>
+  </template>
+
+  <script>
+
+    /**
+     * `rta-detection-datatable`
+     * This element will display the rta-detection-datatable plot
+     *
+     * @customElement
+     * @polymer
+     * @demo demo/index.html
+     */
+    class RtaDetectionDatatable extends Polymer.Element {
+
+      // private properties
+      constructor() {
+        super();
+        this.plotName = 'rta-detection-datatable-div';
+        this._fetchNewData = true;
+        this.all_data_to_show = [];
+        this.dataSource = {};
+      }
+
+
+      ready() {
+        super.ready();
+
+        var _this = this;
+
+        this.dataSource = {
+  				get: function(sort, page, pageSize){
+  					return new Promise(function(resolve, reject){
+              if( _this._fetchNewData ) {
+                console.log("[rta-detection-datatable] Fetching data at: ", _this.dataendpoint)
+                _this._loadDataFromEndpoint(_this, function(success){
+                  if(success) {
+                    _this._prepareDataForVisualization(_this, sort, page, pageSize, function(preparedData){
+                      _this._fetchNewData = false;
+                      resolve(preparedData);
+                    });
+                  }
+                  else{
+                    _this._fetchNewData = false;
+                    resolve([]);
+                  }
+                });
+              }
+              else {
+                _this._prepareDataForVisualization(_this, sort, page, pageSize, function(preparedData){
+                  resolve(preparedData);
+                });
+              }
+  					});
+  				},
+  				// none of the <templates> bind in an editable way right now, but if they would this is the function
+  				// that's triggered after an edit
+  				set: function(id, property, value){
+  					console.info("a save was triggered", arguments);
+  				},
+  				length:0
+  			};
+
+      }
+
+      ////////////////////////////////////////////////////////////////////////
+      // @Private
+      _loadDataFromEndpoint(_this, callback) {
+        var httpRequest = new XMLHttpRequest();
+        httpRequest.onreadystatechange = function() {
+          if (httpRequest.readyState === XMLHttpRequest.DONE) {
+            if (httpRequest.status === 200) {
+              try {
+                _this.all_data_to_show = JSON.parse(httpRequest.responseText);
+              } catch(e) {
+                console.log("[rta-detection-datatable] JSON.parse(httpRequest.responseText) Error!",e)
+                callback(false);
+              }
+              callback(true)
+            }
+            else {
+              console.log("[rta-detection-datatable] ready()->get() Error! httpRequest status: ",httpRequest.status)
+              callback(false);
+            }
+          }
+        };
+        httpRequest.open('GET', _this.dataendpoint);
+        httpRequest.send();
+      }
+
+      ////////////////////////////////////////////////////////////////////////
+      // @Private
+      _prepareDataForVisualization(_this, sort, page, pageSize, callback) {
+        _this._nestData(_this.all_data_to_show, function(nestedData){
+          console.log("nestedData: ",nestedData)
+          _this._filterData(nestedData, "label", "String", _this.searchTerm, function(filteredData){
+            console.log("filteredData:", filteredData)
+            _this._sortData(filteredData, sort, function(sortedDetections){
+              console.log("sortedDetections: ", sortedDetections)
+
+              _this.set('dataSource.length', sortedDetections.length);
+
+              _this._paginateResults(sortedDetections, page, pageSize, function(paginatedResults){
+                console.log("paginatedResults: ", paginatedResults)
+                callback(paginatedResults);
+              });
+            });
+          });
+        });
+      }
+
+      ////////////////////////////////////////////////////////////////////////
+      // @Private
+      _getDatatable() { return this.shadowRoot.querySelector("#datatableCard"); }
+
+      ////////////////////////////////////////////////////////////////////////
+      // @Private
+      _getColumn(property) { return this.shadowRoot.querySelector("#"+property); }
+
+      ////////////////////////////////////////////////////////////////////////
+      // @Private
+      _retrieveResults(ev){
+        //console.log(ev);
+				this. _getDatatable().retrieveVisibleData();
+			};
+
+      ////////////////////////////////////////////////////////////////////////
+      // @Private
+      _rowTapped(ev){
+				console.log(ev);
+        ev.preventDefault();
+			};
+
+      ////////////////////////////////////////////////////////////////////////
+      // @Private
+      _paginateResults(data, page, pageSize, callback) {
+       callback(data.slice((page-1)*pageSize, (page)*pageSize))
+      }
+
+
+
+      ////////////////////////////////////////////////////////////////////////
+      // @Private
+      _nestData(data, callback) {
+        callback(data.map(function(item){
+
+           item["flux"]={};
+           item["flux"]["y"]=item["y"];
+           item["flux"]["flux_err"]=item["flux_err"];
+
+           item["t_mjd"]={};
+           item["t_mjd"]["t_start_mjd"]=item["t_start_mjd"];
+           item["t_mjd"]["t_stop_mjd"]=item["t_stop_mjd"];
+
+           item["t_tt"]={};
+           item["t_tt"]["t_start_tt"]=item["t_start_tt"];
+           item["t_tt"]["t_stop_tt"]=item["t_stop_tt"];
+
+           return item;
+         }));
+       }
+
+
+       ////////////////////////////////////////////////////////////////////////
+       // @Private
+      _filterData(data, property, type, searchTerm, callback) {
+        if(searchTerm) {
+          var filteredData = data.filter(function(elem){
+            return ! elem[property].localeCompare(searchTerm);
+          })
+          callback(filteredData);
+        }
+        else {
+          callback(data);
+        }
+      }
+
+       ////////////////////////////////////////////////////////////////////////
+       // @Private
+       _sortData(data, sortOptions, callback) {
+
+         var column = this._getColumn(sortOptions.property);
+
+         var propertiesToSort = column.tooltip.split(":")[1];
+         var type = column.type;
+
+         if(column.inactive)
+           callback(data);
+         else{
+           data.sort(function(a, b) {
+
+             var _propertiesToSort = propertiesToSort.split(".");
+
+             if(_propertiesToSort.length <= 0){
+               console.log("[rta-detection-datatable] sort() -> _propertiesToSort:", _propertiesToSort);
+               return true;
+             }
+
+
+
+
+             var temp_a = a;
+             var temp_b = b;
+             for (var i = 0; i < _propertiesToSort.length; i++) {
+               if(!temp_a[_propertiesToSort[i]] || !temp_b[_propertiesToSort[i]]){
+                 console.log("[rta-detection-datatable] sort() -> temp__[_propertiesToSort[i]]:", temp_a[_propertiesToSort[i]],temp_b[_propertiesToSort[i]]);
+                 return true;
+               }
+               temp_a = temp_a[_propertiesToSort[i]];
+               temp_b = temp_b[_propertiesToSort[i]];
+             }
+
+             var x,y;
+             if(type.localeCompare("Number")==0){
+               x = parseFloat(temp_a);
+               y = parseFloat(temp_b);
+             }
+             else if(type.localeCompare("String")==0){
+               x = String(temp_a);
+               y = String(temp_b);
+             }
+
+             if(sortOptions.direction.localeCompare("asc") == 0){
+               return x > y ? 1 : y > x ? -1 : 0;
+             }
+             else {
+               //console.log("desc",x,y,x>y,y<x,x > y ? 1 : y > x ? -1 : 0)
+               return x > y ? -1 : y > x ? 1 : 0;
+             }
+           });
+           callback(data);
+         }
+       }
+
+      //////////////////////////////////////////
+      // PUBLIC API
+      //////////////////////////////////////////
+
+      static get is() { return 'rta-detection-datatable'; }
+      static get properties() {
+        return {
+          dataendpoint: {
+            type: String,
+            value: '/static/detections.json'
+          },
+          searchTerm: {
+            type: String,
+            value: '',
+            notify:true
+          }
+        };
+      }
+
+      //////////////////////////////////////////////
+      // @Public
+      addRow(json_row) {
+
+        if( json_row.hasOwnProperty('dec') &&
+            json_row.hasOwnProperty('detectionid') &&
+            json_row.hasOwnProperty('flux_err') &&
+            json_row.hasOwnProperty('label') &&
+            json_row.hasOwnProperty('ra') &&
+            json_row.hasOwnProperty('sqrtts') &&
+            json_row.hasOwnProperty('t_start_mjd') &&
+            json_row.hasOwnProperty('t_stop_mjd') &&
+            json_row.hasOwnProperty('t_start_tt') &&
+            json_row.hasOwnProperty('t_stop_tt') &&
+            json_row.hasOwnProperty('x') &&
+            json_row.hasOwnProperty('y')
+         ){
+
+            json_row["flux"]={};
+            json_row["flux"]["y"]=json_row["y"];
+            json_row["flux"]["flux_err"]=json_row["flux_err"];
+
+            json_row["t_mjd"]={};
+            json_row["t_mjd"]["t_start_mjd"]=json_row["t_start_mjd"];
+            json_row["t_mjd"]["t_stop_mjd"]=json_row["t_stop_mjd"];
+
+            json_row["t_tt"]={};
+            json_row["t_tt"]["t_start_tt"]=json_row["t_start_tt"];
+            json_row["t_tt"]["t_stop_tt"]=json_row["t_stop_tt"];
+
+            this.set('dataSource.length', this.all_data_to_show.length+1);
+            this.all_data_to_show.push(json_row);
+
+            this. _getDatatable().retrieveVisibleData();
+
+            this. _getDatatable().firstPage();
+
+
+
+         }
+         else {
+           console.log("The input row does not have all the required keys.")
+         }
+      }
+
+
+      //////////////////////////////////////////////
+      // @Public
+      fetchNewData(dataendpoint) {
+        this.set('dataendpoint', dataendpoint);
+        this._fetchNewData = true;
+        this. _getDatatable().retrieveVisibleData();
+        this. _getDatatable().firstPage();
+      }
+
+    }
+    window.customElements.define(RtaDetectionDatatable.is, RtaDetectionDatatable);
+
+  </script>
+</dom-module>
