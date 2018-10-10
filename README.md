@@ -8,17 +8,21 @@ This repository contains the new widgets for the rta scientific gui that is base
   * Import a new web component from RTA-GUI-components in ctaOperatorGUI
     * copy the component in the template folder
     * import the component file in the template/view_common.jinja2 file
-    * create a new widget
+  * Create a new widget
+    * execute the utility script located at the bottom of the README
     * add the new widget to the allowed widgets (in ctaGUIUtils/py/utils.py)
     * add the new widget to the view 300 (in js/utils_setupView.js)
-  * Update the copyTo/copyFrom scripts
-  * Run the scripts in order to import here the new files
-* Commit and push
-* Open pull request
-* When accepted
-  * Checkout on master
-  * git pull
-  * delete branch
+    * write the code of the new widget importing the new web component
+  * Run the GUI, check for any errors
+  * If there are no errors, add the new file paths to the copyFrom.sh script and run it with:
+    ```bash
+      ./copyFrom.sh <absolute-path-to-ctaOperatorGUI-dir>
+    ```
+  * Commit, push and open a pull request
+  * When the pull request is accepted and the branch is merged to the master:
+    * Checkout on master
+    * git pull origin master
+    * delete branch
 
 ## How to merge the ctaOperatorGUI with the new widgets
 - Clone the Iftach's ctaOperatorGUI with:
@@ -34,14 +38,31 @@ This repository contains the new widgets for the rta scientific gui that is base
   - the new custom widgets (.js and .py).
   - the plotly css stylesheet.
 
+- Install new dependencies:
+  - install the following packages with bower:
+    ```bash
+      cd ctaOperatorGUI/ctaGuiFront/
+      bower install https://github.com/plotly/plotly.js.git#v1.39.2 --save
+      bower install https://github.com/mathjax/MathJax.git#2.7.5 --save
+      bower install bwt-datatable --save
+      bower install web-animations-js --save
+    ```
+
+
 - Modify the following files:
-  - ctaGuiFront/bower.json
-    - Add "plotly.js": "^1.39.3" to the dependencies list
+  -  ctaGuiFront/ctaGuiFront/templates/*new components*
+    - remove all the imports located on top of the files
 
   - ctaGuiFront/ctaGuiFront/templates/view_common.jinja2
     - For each external web-component copied inside the /ctaGuiFront/ctaGuiFront/template folder, import each web-component with:
       ```html
         <link rel="import" href="/templates/<component name>.html">
+      ```
+    * Add the following imports:
+      ```html
+        <link rel="import" href="/bower_components/bwt-datatable/bwt-datatable.html">
+        <link rel="import" href="/bower_components/bwt-datatable/bwt-datatable-card.html">
+        <link rel="import" href="/bower_components/web-animations-js/web-animations-next.min.html">
       ```
   - ctaGuiUtils/py/utils.py
     - Add to the 'allowedWidgetTypeV' object, within the 'synced' list, the name of all the new custom widgets.
