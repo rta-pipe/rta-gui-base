@@ -13,9 +13,9 @@ from ctaGuiUtils.py.utils_redis import redisManager
 
 
 # -----------------------------------------------------------------------------------------------------------
-#  emptyPlotlyExample
+#  rtaResults
 # -----------------------------------------------------------------------------------------------------------
-class emptyPlotlyExample():
+class rtaResults():
     # privat lock for this widget type
     lock = BoundedSemaphore(1)
 
@@ -48,6 +48,9 @@ class emptyPlotlyExample():
         #
         self.nIcon = -1
 
+        self.dataStreamChannel = None
+        self.dataStreamThreadActive = False
+
     # -----------------------------------------------------------------------------------------------------------
     #
     # -----------------------------------------------------------------------------------------------------------
@@ -62,33 +65,101 @@ class emptyPlotlyExample():
                          str(self.mySock.sessId)+"/"+__name__+"/"+self.widgetId)
 
         # initial dataset and send to client
-        optIn = {'widget': self, 'dataFunc': self.getData}
+        optIn = {'widget': self, 'dataFunc': self.getInitData}
         self.mySock.sendWidgetInit(optIn=optIn)
 
-        # start a thread which will call updateData() and send 1Hz data updates to
-        # all sessions in the group
-        optIn = {'widget': self, 'dataFunc': self.getData}
-        self.mySock.addWidgetTread(optIn=optIn)
 
         return
+
+
+    # -----------------------------------------------------------------------------------------------------------
+    #
+    # -----------------------------------------------------------------------------------------------------------
+    def syncToAnalysisSession(self, data):
+
+
+        self.log.info([
+            ['r', " =======> "], ['b', "syncToAnalysisSession event "], ['g', data]
+        ])
+
+        data_stream_channel = "astri_gui."+str(data['instrument'])+"."+str(data['observation'])+"."+str(data['analysis'])
+
+        if self.dataStreamChannel != data_stream_channel:
+            self.dataStreamChannel = data_stream_channel
+            self.log.info([
+                ['r', " =======> "], ['b', "New channel name: "], ['g', self.dataStreamChannel ]
+            ])
+
+            self.redis.setPubSub(key=self.dataStreamChannel)
+
+
+            # start a thread which will call updateData() and send 1Hz data updates to
+            # all sessions in the group
+            optIn = {
+                        'widget': self,
+                        'dataFunc': self.getDataFromPubSub,
+                        'threadType': 'updateData',
+                        'sleepTime': 1
+                    }
+
+            if not self.dataStreamThreadActive:
+                self.mySock.addWidgetTread(optIn=optIn)
+                self.dataStreamThreadActive = True
+
+        return
+
+
+    def stopSyncToAnalysisSession(self):
+        with self.mySock.lock:
+            if self.dataStreamChannel:
+                self.redis.pubSub[self.dataStreamChannel].unsubscribe(self.dataStreamChannel)
+                self.redis.pubSub.pop(self.dataStreamChannel, None)
+                self.dataStreamChannel = None
+
+
+
+    # -----------------------------------------------------------------------------------------------------------
+    #
+    # -----------------------------------------------------------------------------------------------------------
+    def getInitData(self):
+        return None
+    def getDataFromPubSub(self):
+        data = None
+
+        if self.dataStreamChannel:
+            data = self.redis.getPubSub(key=self.dataStreamChannel, timeout=0.1, packed=False);
+            self.log.info([
+                ['r', " =======> "], ['b', "Trying to read data from PubSub: "], ['g', data]
+            ])
+
+        if data:
+            return data
+        
+
+    def getDataOriginal(self):
+        data = {
+            "rnd": Random(getTime()).random(), 'time': getTime()
+        }
+        self.log.info([
+            ['r', " =======> Original getdata"], ['g', data]
+        ])
+
+        return data
+
+
+
+
+
+
 
     # -----------------------------------------------------------------------------------------------------------
     #
     # -----------------------------------------------------------------------------------------------------------
     def backFromOffline(self):
-        # with emptyPlotlyExample.lock:
+        # with rtaResults.lock:
         #   print '-- backFromOffline',self.widgetName, self.widgetId
         return
 
-    # -----------------------------------------------------------------------------------------------------------
-    #
-    # -----------------------------------------------------------------------------------------------------------
-    def getData(self):
-        data = {
-            "rnd": Random(getTime()).random(), 'time': getTime()
-        }
-
-        return data
 
     # -----------------------------------------------------------------------------------------------------------
     #
@@ -100,3 +171,20 @@ class emptyPlotlyExample():
         # ])
 
         return
+
+
+
+    """
+    dataEmit = {
+        'widgetType': self.widgetName,
+        'evtName': "updateData",
+        'data': self.syncToAnalysisSession()
+    }
+
+    self.mySock.socketEvtWidgetV(
+        evtName=dataEmit['evtName'],
+        data=dataEmit,
+        sessIdV=[self.mySock.sessId],
+        widgetIdV=[self.widgetId]
+    )
+    """
