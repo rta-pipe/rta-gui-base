@@ -19,16 +19,7 @@ cp $from/ctaGuiFront/ctaGuiFront/templates/rta-detection-datatable.html $to/ctaG
 echo 'New templates: webcomp-example.html, light-curve.html, data-quality-histogram.html, rta-detection-datatable.html'
 
 # New Widgets
-cp $from/ctaGuiFront/ctaGuiFront/js/widget_emptyPlotlyExample.js $to/ctaGuiFront/ctaGuiFront/js/
-cp $from/ctaGuiFront/ctaGuiFront/py/widget_emptyPlotlyExample.py $to/ctaGuiFront/ctaGuiFront/py/
+cp $from/ctaGuiFront/ctaGuiFront/js/widget_rtaResults.js $to/ctaGuiFront/ctaGuiFront/js/
+cp $from/ctaGuiFront/ctaGuiFront/py/widget_rtaResults.py $to/ctaGuiFront/ctaGuiFront/py/
 
-cp $from/ctaGuiFront/ctaGuiFront/js/widget_lightCurve.js $to/ctaGuiFront/ctaGuiFront/js/
-cp $from/ctaGuiFront/ctaGuiFront/py/widget_lightCurve.py $to/ctaGuiFront/ctaGuiFront/py/
-
-cp $from/ctaGuiFront/ctaGuiFront/js/widget_dqHistogram.js $to/ctaGuiFront/ctaGuiFront/js/
-cp $from/ctaGuiFront/ctaGuiFront/py/widget_dqHistogram.py $to/ctaGuiFront/ctaGuiFront/py/
-
-cp $from/ctaGuiFront/ctaGuiFront/js/widget_detectionsTable.js $to/ctaGuiFront/ctaGuiFront/js/
-cp $from/ctaGuiFront/ctaGuiFront/py/widget_detectionsTable.py $to/ctaGuiFront/ctaGuiFront/py/
-
-echo 'New widgets: widget_emptyPlotlyExample, widget_lightCurve, widget_dqHistogram, widget_detectionsTable'
+echo 'New widgets: widget_rtaResults'

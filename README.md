@@ -8,17 +8,19 @@ This repository contains the new widgets for the rta scientific gui that is base
   * Import a new web component from RTA-GUI-components in ctaOperatorGUI
     * copy the component in the template folder
     * import the component file in the template/view_common.jinja2 file
-  * Create a new widget
-    * execute the utility script located at the bottom of the README
-    * add the new widget to the allowed widgets (in ctaGUIUtils/py/utils.py)
-    * add the new widget to the view 300 (in js/utils_setupView.js)
-    * write the code of the new widget importing the new web component
+  * Add the web component into a widget
+    * [Optional] Create a new widget
+      * execute the utility script located at the bottom of the README
+      * add the new widget to the allowed widgets (in ctaGUIUtils/py/utils.py)
+      * add the new widget to the view 300 (in js/utils_setupView.js)
+      * write the code of the new widget importing the new web component
   * Run the GUI, check for any errors
-  * If there are no errors, add the new file paths to the copyFrom.sh script and run it with:
+  * Go to RTA-base-GUI repo and checkout a new branch
+  * Add the new files with the copyFrom.sh script:
     ```bash
       ./copyFrom.sh <absolute-path-to-ctaOperatorGUI-dir>
     ```
-  * Commit, push and open a pull request
+  * Commit, push on branch and open a pull request
   * When the pull request is accepted and the branch is merged to the master:
     * Checkout on master
     * git pull origin master
@@ -91,7 +93,7 @@ This repository contains the new widgets for the rta scientific gui that is base
 - Rename the ctaOperatorGUI folder.
 
 
-## Add a new plotly widget in the ctaOperatorGUI
+## Add a new plotly widget in the ctaOperatorGUI (this is based on Plotly Example Widget)
 ```bash
 tag0="plotlyWebComp"
 tag1="plotlywebcomp"
