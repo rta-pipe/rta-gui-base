@@ -49,15 +49,12 @@ class rtaResults():
         self.nIcon = -1
 
         self.dataStreamChannel = None
+        self.dataStreamThreadActive = False
 
     # -----------------------------------------------------------------------------------------------------------
-    #  Executed every page reload !!
+    #
     # -----------------------------------------------------------------------------------------------------------
     def setup(self, *args):
-        self.log.info([
-            ['w', "-------------->"], ['r', "setup()"]
-        ])
-
         with self.mySock.lock:
             wgt = self.redis.hGet(
                 name='widgetV', key=self.widgetId, packed=True)
@@ -67,15 +64,10 @@ class rtaResults():
         self.log = myLog(title=str(self.mySock.userId)+"/" +
                          str(self.mySock.sessId)+"/"+__name__+"/"+self.widgetId)
 
-
-
         # initial dataset and send to client
         optIn = {'widget': self, 'dataFunc': self.getInitData}
         self.mySock.sendWidgetInit(optIn=optIn)
 
-
-        # Stops the data thread if it is active
-        self.stopSyncToAnalysisSession()
 
         return
 
@@ -90,100 +82,39 @@ class rtaResults():
             ['r', " =======> "], ['b', "syncToAnalysisSession event "], ['g', data]
         ])
 
-        data_stream_channel = "gui_data.astri_rta."+str(data['instrument'])+"."+str(data['observation'])+"."+str(data['analysis'])
+        data_stream_channel = "astri_gui."+str(data['instrument'])+"."+str(data['observation'])+"."+str(data['analysis'])
 
-        # new channel!
         if self.dataStreamChannel != data_stream_channel:
-
-            self.log.info([
-                ['r', " syncToAnalysisSession() "], ['b', "self.dataStreamChannel: "], ['g', self.dataStreamChannel ], ['r', " is not equal to "], ['b', "data_stream_channel: "], ['g', data_stream_channel]
-            ])
-
             self.dataStreamChannel = data_stream_channel
             self.log.info([
                 ['r', " =======> "], ['b', "New channel name: "], ['g', self.dataStreamChannel ]
             ])
 
-
-
-            # Download existing data if it exist
-            data = self.getExistingData(self.dataStreamChannel)
-
-            dataEmit = {
-                "widgetType": self.widgetName, 'evtName': 'existingData', 'data': data
-            }
-
-            self.log.info([
-                ['r', " ===DEBUG====> "], ['b', "self.wgtGrpToSessV: "], ['g', self.wgtGrpToSessV]
-            ])
-
-            """ TOFIX
-            with self.mySock.lock:
-                sessIdV = self.wgtGrpToSessV[self.widgetGroup]
-                self.log.info([
-                    ['r', " =======> "], ['b', "syncToAnalysisSession sending existing data.  sessIdV: "], ['g', sessIdV], ['b', "data length: "], ['r', len(data)]
-                ])
-                self.socketEvtWidgetV(evtName='existingData',
-                                      data=dataEmit, sessIdV=sessIdV)
-            """
-
-            # Set streaming synchronization
             self.redis.setPubSub(key=self.dataStreamChannel)
+
+
+            # start a thread which will call updateData() and send 1Hz data updates to
+            # all sessions in the group
             optIn = {
                         'widget': self,
                         'dataFunc': self.getDataFromPubSub,
                         'threadType': 'updateData',
                         'sleepTime': 1
                     }
-            self.mySock.addWidgetTread(optIn=optIn)
 
-        else:
-            self.log.info([
-                ['r', " syncToAnalysisSession() "], ['b', "self.dataStreamChannel: "], ['g', self.dataStreamChannel ], ['r', " is equal to "], ['b', "data_stream_channel: "], ['g', data_stream_channel]
-            ])
+            if not self.dataStreamThreadActive:
+                self.mySock.addWidgetTread(optIn=optIn)
+                self.dataStreamThreadActive = True
 
         return
 
 
     def stopSyncToAnalysisSession(self):
         with self.mySock.lock:
-            self.log.info([
-                ['r', "stopSyncToAnalysisSession() "],
-                ['b', " dataStreamChannel is: "], ['y', self.dataStreamChannel],
-                ['b', " self.wgtGrpToSessV: "], ['y', self.wgtGrpToSessV],
-                ['b', " self.widgetGroup: "], ['y', self.widgetGroup],
-                ['b', " self.redis.pubSub: "], ['y', self.redis.pubSub]
-
-            ])
-            if self.widgetGroup in self.wgtGrpToSessV:
-                if len(self.wgtGrpToSessV[self.widgetGroup]) > 0 :
-
-                    # Unsubscribing..
-                    if self.dataStreamChannel:
-                        self.redis.pubSub[self.dataStreamChannel].unsubscribe(self.dataStreamChannel)
-                        self.redis.pubSub.pop(self.dataStreamChannel, None)
-                        self.dataStreamChannel = None
-                    else:
-                        self.log.info([['r', "stopSyncToAnalysisSession() "],['b', " cant unsubscribe, self.dataStreamChannel is None. Anyway, self.redis.pubSub = "], ['y', self.redis.pubSub]])
-
-                    # Stopping greenlet thread
-                    self.mySock.clearThreadsByType(self.widgetGroup)
-                    self.wgtGrpToSessV.pop(self.widgetGroup, None)
-
-                else:
-                    self.log.info([
-                        ['r', "len(self.wgtGrpToSessV[self.widgetGroup])="], ['b', len(self.wgtGrpToSessV[self.widgetGroup])]
-                    ])
-            else:
-                self.log.info([
-                    ['r', "self.widgetGroup: "], ['b', self.widgetGroup], ['r', " is not in "], ['r', "self.wgtGrpToSessV: "], ['b', self.wgtGrpToSessV]
-                ])
-
-
-    def topolino(self):
-        self.log.info([
-            ['r', " =======> "], ['b', "topolino()"], ['g', self.mySock.threadToSigD]
-        ])
+            if self.dataStreamChannel:
+                self.redis.pubSub[self.dataStreamChannel].unsubscribe(self.dataStreamChannel)
+                self.redis.pubSub.pop(self.dataStreamChannel, None)
+                self.dataStreamChannel = None
 
 
 
@@ -192,58 +123,18 @@ class rtaResults():
     # -----------------------------------------------------------------------------------------------------------
     def getInitData(self):
         return None
-
-
-    def getExistingData(self, keyLocation):
-
-        dataTypes = ["detection"]#,keyLocation+".other"
-
-        existingData = {}
-
-        for dataType in dataTypes:
-
-            dataTypeLocation = keyLocation+"."+dataType
-
-            data = self.redis.zGet(
-                name=dataTypeLocation, packed=False, packedScore=False)
-
-            if len(data) > 0:
-                # zGet returns a list of couples [ (data,score ), .. ].
-                dataWithoutScore = [c[0] for c in data]
-                existingData[dataType] = dataWithoutScore
-            else:
-                existingData[dataType] = None
-
-            self.log.info([
-                ['r', "getExistingData() data from : "], ['b', dataTypeLocation]
-            ])
-
-
-
-        self.log.info([
-            ['r', " getExistingData() of "], ['b', dataTypes], ['r', " merged data: "], ['b', len(existingData["detection"])]
-        ])
-
-
-        return existingData
-
     def getDataFromPubSub(self):
         data = None
 
         if self.dataStreamChannel:
             data = self.redis.getPubSub(key=self.dataStreamChannel, timeout=0.1, packed=False);
             self.log.info([
-                ['r', " =======> getDataFromPubSub() "], ['b', "Trying to read data from PubSub: "], ['g', data]
+                ['r', " =======> "], ['b', "Trying to read data from PubSub: "], ['g', data]
             ])
 
-        else:
-            self.log.info([
-                ['r', " =======> getDataFromPubSub() "], ['b', "dataStreamChannel is Null "]
-            ])
-
-        return data
-
-
+        if data:
+            return data
+        
 
     def getDataOriginal(self):
         data = {
@@ -254,6 +145,10 @@ class rtaResults():
         ])
 
         return data
+
+
+
+
 
 
 

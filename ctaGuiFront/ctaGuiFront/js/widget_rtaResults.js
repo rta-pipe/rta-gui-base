@@ -95,6 +95,7 @@ let sockRtaResults = function (optIn) {
 
     sock.socket.emit('widget', dataEmit)
   }
+<<<<<<< HEAD
 
   // ---------------------------------------------------------------------------------------------------
   //
@@ -111,6 +112,8 @@ let sockRtaResults = function (optIn) {
 
     sock.socket.emit('widget', dataEmit)
   }
+=======
+>>>>>>> 2eb093c6f3728b1765597fe90357a59d628644e7
 }
 
 
@@ -131,7 +134,10 @@ let mainRtaResults = function (optIn) {
   // let isSouth = window.__nsType__ === 'S'
   // let thisRtaResults = this
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> 2eb093c6f3728b1765597fe90357a59d628644e7
   let formEleId = "form-web-comp"
   let lightCurveEleId = "light-curve-web-comp"
   let detectionTableEleId = "detection-table-web-comp"
@@ -145,8 +151,11 @@ let mainRtaResults = function (optIn) {
       widget: eleNow.widget,
       whRatio: eleNow.w / eleNow.h
     }
+<<<<<<< HEAD
     console.log("eleNow.id: ",eleNow.id,"plotlyTag[eleNow.id]",plotlyTag[eleNow.id])
 
+=======
+>>>>>>> 2eb093c6f3728b1765597fe90357a59d628644e7
   })
 
   // delay counters
@@ -161,6 +170,10 @@ let mainRtaResults = function (optIn) {
   // ---------------------------------------------------------------------------------------------------
   function initData (dataIn) {
 
+<<<<<<< HEAD
+=======
+    console.log(dataIn)
+>>>>>>> 2eb093c6f3728b1765597fe90357a59d628644e7
 
     if (sock.multipleInit({ id: widgetId, data: dataIn })) return
 
@@ -185,9 +198,13 @@ let mainRtaResults = function (optIn) {
   }
   this.updateData = updateData
 
+<<<<<<< HEAD
   // ---------------------------------------------------------------------------------------------------
   //  Functions to trigger socket events
   // ---------------------------------------------------------------------------------------------------
+=======
+
+>>>>>>> 2eb093c6f3728b1765597fe90357a59d628644e7
 
   function syncToAnalysisSession (_analysisSessionDetails) {
     console.log("syncToAnalysisSession!")
@@ -210,6 +227,7 @@ let mainRtaResults = function (optIn) {
   document.querySelector('base-app').addEventListener('stop-data-stream', function (e) {
           stopSyncToAnalysisSession()
   })
+<<<<<<< HEAD
 
 
   function topolino () {
@@ -226,6 +244,8 @@ let mainRtaResults = function (optIn) {
 
 
 
+=======
+>>>>>>> 2eb093c6f3728b1765597fe90357a59d628644e7
   // ---------------------------------------------------------------------------------------------------
   //
   // ---------------------------------------------------------------------------------------------------
@@ -247,7 +267,10 @@ let mainRtaResults = function (optIn) {
     // ---------------------------------------------------------------------------------------------------
     function initData (dataIn) {
 
+<<<<<<< HEAD
       console.log(dataIn)
+=======
+>>>>>>> 2eb093c6f3728b1765597fe90357a59d628644e7
 
       // ---------------------------------------------------------------------------------------------------
       // create the Form element
@@ -259,12 +282,26 @@ let mainRtaResults = function (optIn) {
 
         let parent = plotlyTag.main.widget.getEle(plotlyTag.main.id)
 
+<<<<<<< HEAD
+=======
+
+
+>>>>>>> 2eb093c6f3728b1765597fe90357a59d628644e7
         let formDiv = document.createElement('analysis-session-form')
         formDiv.setAttribute("id", formDivId);
         formDiv.id = formDivId;
         appendToDom(parent, formDiv);
 
 
+<<<<<<< HEAD
+=======
+        // Fetching HTML Elements in Variables by ID.
+        //let formDiv = document.createElement('h2');
+        //formDiv.innerHTML = "Select analysis session";
+        //appendToDom(parent, formDiv);
+
+
+>>>>>>> 2eb093c6f3728b1765597fe90357a59d628644e7
 
         runWhenReady({
           pass: function () {
@@ -292,9 +329,14 @@ let mainRtaResults = function (optIn) {
         lightCurveDiv.setAttribute('id', lightCurveDivId)
         lightCurveDiv.setAttribute('plottitle', 'Light Curve')
         lightCurveDiv.setAttribute('xLabel', 'MJD [days]')
+<<<<<<< HEAD
         lightCurveDiv.setAttribute('yLabel', 'flux *10^-16 ph cm^-2 s^-1')
         lightCurveDiv.setAttribute('classesnumber', 3)
         lightCurveDiv.setAttribute('slidingwindowSize', 10)
+=======
+        lightCurveDiv.setAttribute('classesnumber', 3)
+        lightCurveDiv.setAttribute('slidingwindowSize', 50)
+>>>>>>> 2eb093c6f3728b1765597fe90357a59d628644e7
         lightCurveDiv.id = lightCurveDivId
 
         appendToDom(parent, lightCurveDiv)
@@ -372,11 +414,16 @@ let mainRtaResults = function (optIn) {
 
       if(dataIn && dataIn.data) {
 
+<<<<<<< HEAD
+=======
+        console.log(dataIn)
+>>>>>>> 2eb093c6f3728b1765597fe90357a59d628644e7
 
         let msgPayload = JSON.parse(dataIn.data)
 
         let newP = msgPayload.last_data
 
+<<<<<<< HEAD
         console.log("[rtaResults.js]",newP)
         // ------------------
         // Updating LC
@@ -388,6 +435,24 @@ let mainRtaResults = function (optIn) {
                                                               newP.text, //detection_40634_184.557_-5.7843
                                                               parseFloat(newP.x), // 58130.046643518515
                                                          )
+=======
+        console.log(newP)
+        // ------------------
+        // Updating LC
+        // ------------------
+        plotlyTag.main.widget.getEle(lightCurveEleId).addPoint(
+                                                              'test',
+                                                              parseFloat(newP.x),
+                                                              parseFloat(newP.y),
+                                                              0.5,
+                                                              0.5,
+                                                              0,
+                                                              0,
+                                                              newP.isUpperLimit,
+                                                              newP.class
+                                                            )
+
+>>>>>>> 2eb093c6f3728b1765597fe90357a59d628644e7
 
         // ------------------
         // Updating DT

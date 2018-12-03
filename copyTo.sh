@@ -25,3 +25,6 @@ cp $from/ctaGuiFront/ctaGuiFront/py/widget_dataQuality.py $to/ctaGuiFront/ctaGui
 
 cp $from/ctaGuiFront/ctaGuiFront/js/widget_rtaResults.js $to/ctaGuiFront/ctaGuiFront/js/
 cp $from/ctaGuiFront/ctaGuiFront/py/widget_rtaResults.py $to/ctaGuiFront/ctaGuiFront/py/
+
+echo 'New widget: widget_rtaResults'
+echo 'New widget: widget_dataQuality'

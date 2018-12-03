@@ -25,7 +25,6 @@ cp $from/ctaGuiFront/ctaGuiFront/templates/rta-detection-datatable.html $to/ctaG
 cp $from/ctaGuiFront/ctaGuiFront/templates/utils_flare_advocates_widgets.html $to/ctaGuiFront/ctaGuiFront/templates/
 
 
-# New Widgets
 cp $from/ctaGuiFront/ctaGuiFront/js/widget_dataQuality.js $to/ctaGuiFront/ctaGuiFront/js/
 cp $from/ctaGuiFront/ctaGuiFront/py/widget_dataQuality.py $to/ctaGuiFront/ctaGuiFront/py/
 
