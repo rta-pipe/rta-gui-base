@@ -8,7 +8,7 @@
 // mainScriptTag used locally (will be overriden by other scripts...)
 // must be compatible with the name of this js file, according to:
 //    "/js/widget_"+mainScriptTag+".js"
-var mainScriptTag = 'detectionsTable'
+var mainScriptTag = 'dataQuality'
 // ---------------------------------------------------------------------------------------------------
 
 /* global $ */
@@ -26,19 +26,19 @@ var mainScriptTag = 'detectionsTable'
 /* global unique */
 
 // // load additional js files:
-//window.loadScript({ source:mainScriptTag, script:"/bower_components/plotly.js/dist/plotly.min.js"});
+window.loadScript({ source:mainScriptTag, script:"/bower_components/plotly.js/dist/plotly.min.js"});
 
 // ---------------------------------------------------------------------------------------------------
 sock.widgetTable[mainScriptTag] = function (optIn) {
   let x0 = 0
   let y0 = 0
-  let h0 = 5
+  let h0 = 9
   let w0 = 12
   let divKey = 'main'
 
   optIn.widgetFunc = {
-    SockFunc: sockdetectionsTable,
-    MainFunc: maindetectionsTable
+    SockFunc: sockDataQuality,
+    MainFunc: mainDataQuality
   }
   optIn.widgetDivId = optIn.widgetId + 'widgetDiv'
   optIn.eleProps = {}
@@ -59,13 +59,52 @@ sock.widgetTable[mainScriptTag] = function (optIn) {
 // ---------------------------------------------------------------------------------------------------
 // additional socket events for this particular widget type
 // ---------------------------------------------------------------------------------------------------
-let sockdetectionsTable = function (optIn) {}
+let sockDataQuality = function (optIn) {
+  let widgetType = optIn.widgetType
+  let widgetSource = optIn.widgetSource
+
+  // ---------------------------------------------------------------------------------------------------
+  //
+  // ---------------------------------------------------------------------------------------------------
+  this.syncToDataStream = function (optIn) {
+    if (sock.conStat.isOffline()) return
+
+    let dataEmit = {
+      widgetSource: widgetSource,
+      widgetName: widgetType,
+      widgetId: optIn.widgetId,
+      methodName: 'syncToDataStream',
+      methodArgs: optIn.streamDetails
+    }
+
+    sock.socket.emit('widget', dataEmit)
+  }
+
+  // ---------------------------------------------------------------------------------------------------
+  //
+  // ---------------------------------------------------------------------------------------------------
+  this.stopSyncToDataStream = function (optIn) {
+    if (sock.conStat.isOffline()) return
+
+    let dataEmit = {
+      widgetSource: widgetSource,
+      widgetName: widgetType,
+      widgetId: optIn.widgetId,
+      methodName: 'stopSyncToDataStream'
+    }
+
+    sock.socket.emit('widget', dataEmit)
+  }
+
+}
+
+
 
 // ---------------------------------------------------------------------------------------------------
 // ---------------------------------------------------------------------------------------------------
 // here we go with the content of this particular widget
 // ---------------------------------------------------------------------------------------------------
-let maindetectionsTable = function (optIn) {
+let mainDataQuality = function (optIn) {
   // let myUniqueId = unique()
   let widgetType = optIn.widgetType
   let widgetSource = optIn.widgetSource
@@ -76,16 +115,16 @@ let maindetectionsTable = function (optIn) {
   let sideId = optIn.sideId
 
   // let isSouth = window.__nsType__ === 'S'
-  // let thisdetectionsTable = this
+  // let thisDataQuality = this
 
-  let webCompEleId = "detection-table-web-comp"
+  let formEleId = "form-web-comp"
+  let histogramEleId = "histogram-web-comp"
 
 
 
-
-  let webCompTag = {}
+  let plotlyTag = {}
   $.each(widgetEle, function (index, eleNow) {
-    webCompTag[eleNow.id] = {
+    plotlyTag[eleNow.id] = {
       id: tagArrZoomerPlotsSvg + eleNow.id,
       widget: eleNow.widget,
       whRatio: eleNow.w / eleNow.h
@@ -103,7 +142,6 @@ let maindetectionsTable = function (optIn) {
   //
   // ---------------------------------------------------------------------------------------------------
   function initData (dataIn) {
-
     if (sock.multipleInit({ id: widgetId, data: dataIn })) return
 
     window.sideDiv = sock.setSideDiv({
@@ -124,6 +162,44 @@ let maindetectionsTable = function (optIn) {
   }
   this.updateData = updateData
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+  function syncToDataStream (_streamDetails) {
+    console.log("syncToDataStream!")
+    sock.widgetV[widgetType].SockFunc.syncToDataStream({ widgetId: widgetId, streamDetails : _streamDetails })
+  }
+  this.syncToDataStream = syncToDataStream
+
+  document.querySelector('base-app').addEventListener('form-submitted', function (e) {
+          console.log(e.detail); // true
+          syncToDataStream(e.detail)
+  })
+
+
+  function stopSyncToDataStream () {
+    console.log("stopSyncToDataStream!")
+    sock.widgetV[widgetType].SockFunc.stopSyncToDataStream({ widgetId: widgetId })
+  }
+  this.stopSyncToDataStream = stopSyncToDataStream
+
+  document.querySelector('base-app').addEventListener('stop-data-stream', function (e) {
+          stopSyncToDataStream()
+  })
+
+
+
+
   // ---------------------------------------------------------------------------------------------------
   //
   // ---------------------------------------------------------------------------------------------------
@@ -136,53 +212,91 @@ let maindetectionsTable = function (optIn) {
     lenD.w = {}
     lenD.h = {}
     lenD.w[0] = 1000
-    lenD.h[0] = lenD.w[0] / webCompTag.main.whRatio
+    lenD.h[0] = lenD.w[0] / plotlyTag.main.whRatio
 
-    let tagdetectionsTable = 'detectionsTable'
+    let tagDataQuality = 'dataQuality'
 
     // ---------------------------------------------------------------------------------------------------
     //
     // ---------------------------------------------------------------------------------------------------
     function initData (dataIn) {
 
+      console.log(dataIn)
+
+
       // ---------------------------------------------------------------------------------------------------
-      // create the main plotly element
+      // create the Form element
       // ---------------------------------------------------------------------------------------------------
-      let webCompDivId = webCompEleId
-      let webCompDiv = webCompTag.main.widget.getEle(webCompDivId)
 
-      if (!hasVar(webCompDiv)) {
-        let parent = webCompTag.main.widget.getEle(webCompTag.main.id)
+      let formDivId = formEleId //plotlyTag.main.id + 'svg'
+      let formDiv = plotlyTag.main.widget.getEle(formDivId)
 
-        let webCompDiv = document.createElement('rta-detection-datatable')
-        webCompDiv.setAttribute("id", webCompDivId);
-        webCompDiv.id = webCompDivId
+      if (!hasVar(formDiv)) {
 
-        appendToDom(parent, webCompDiv)
+        let parent = plotlyTag.main.widget.getEle(plotlyTag.main.id)
+
+        let formDiv = document.createElement('data-quality-form')
+        formDiv.setAttribute("id", formDivId);
+        formDiv.id = formDivId;
+        appendToDom(parent, formDiv);
+
+
 
         runWhenReady({
           pass: function () {
-            return hasVar(webCompTag.main.widget.getEle(webCompDivId))
+            return hasVar(plotlyTag.main.widget.getEle(formDivId))
           },
           execute: function () {
             initData(dataIn)
           }
         })
-
         return
       }
-      sock.emitMouseMove({ eleIn: webCompDiv, data: { widgetId: widgetId } })
+
+      // ---------------------------------------------------------------------------------------------------
+      // create the Data Quality element
+      // ---------------------------------------------------------------------------------------------------
+      let plotlyDivId = histogramEleId
+      let plotlyDiv = plotlyTag.main.widget.getEle(plotlyDivId)
+
+      if (!hasVar(plotlyDiv)) {
+        let parent = plotlyTag.main.widget.getEle(plotlyTag.main.id)
+
+        let plotlyDiv = document.createElement('data-quality-histogram')
+        plotlyDiv.setAttribute('id', plotlyDivId)
+        plotlyDiv.setAttribute('plottitle', 'Data Quality Histogram Example')
+        plotlyDiv.setAttribute('xLabel', 'EVT1 MC Energy [TeV]')
+        plotlyDiv.setAttribute('yLabel', 'Energy count [bin=0.1]')
+        plotlyDiv.id = plotlyDivId
+
+        appendToDom(parent, plotlyDiv)
+
+        plotlyTag.main.widget.getEle(plotlyDivId).configure(0, 5, 0.1)
+
+
+        runWhenReady({
+          pass: function () {
+            return hasVar(plotlyTag.main.widget.getEle(plotlyDivId))
+          },
+          execute: function () {
+            initData(dataIn)
+          }
+        })
+        return
+      }
+      //sock.emitMouseMove({ eleIn: lightCurveDiv, data: { widgetId: widgetId } })
+
 
 
 
       // ---------------------------------------------------------------------------------------------------
       //
       // ---------------------------------------------------------------------------------------------------
-      updateDataOnce(dataIn.data)
+      //updateDataOnce(dataIn.data)
 
       runWhenReady({
         pass: function () {
-          return locker.isFree(tagdetectionsTable + 'updateData')
+          return locker.isFree(tagDataQuality + 'updateData')
         },
         execute: function () {
           locker.remove('inInit')
@@ -204,31 +318,46 @@ let maindetectionsTable = function (optIn) {
         return
       }
 
+
+      if(dataIn && dataIn.data) {
+
+
+        console.log("dataIn: ",dataIn)
+        let msgPayload = JSON.parse(dataIn.data)
+        console.log("msgPayload: ",msgPayload)
+
+        // ------------------
+        // Updating DQ
+        // ------------------
+        plotlyTag.main.widget.getEle(histogramEleId).addPoint(msgPayload.last_data.mc_energy)
+
+
+
+      }
+
+
+
       runLoop.push({ tag: 'updateData', data: dataIn }) //, time:dataIn.emitTime
     }
-
-
 
     // ---------------------------------------------------------------------------------------------------
     // some random stuff for illustration
     // ---------------------------------------------------------------------------------------------------
     function updateDataOnce (dataIn) {
-      if (!locker.isFreeV([tagdetectionsTable + 'updateData'])) {
+      if (!locker.isFreeV([tagDataQuality + 'updateData'])) {
         // console.log('will delay updateData');
         setTimeout(function () {
           updateData(dataIn)
         }, 10)
         return
       }
-      locker.add(tagdetectionsTable + 'updateData')
-
-      var row = JSON.parse('{"label":"A-Test-1", "x":99999.999,"y":"33333","flux_err":"3137.94569515991","time_err":0.00034722222335404,"text":"58130 , 58130.0006944 , 0 +/- 3137.9 *10^-16 , sqrt(TS)= 0","sqrtts":"1000","ra":83.633,"dec":22.015,"t_start_mjd":58130,"t_stop_mjd":58130.0006944,"t_start_tt":"442800000","t_stop_tt":"442800060","detectionid":"9999"}');
-      row['y']=String(dataIn.rnd);
-      console.log(webCompTag.main.widget.getEle(webCompEleId))
-      webCompTag.main.widget.getEle(webCompEleId).addRow(row);
+      locker.add(tagDataQuality + 'updateData')
 
 
-      locker.remove(tagdetectionsTable + 'updateData')
+
+      // ---------------------------------------------------------------------------------------------------
+
+      locker.remove(tagDataQuality + 'updateData')
     }
     this.updateData = updateData
   }

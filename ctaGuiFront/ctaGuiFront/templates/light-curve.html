@@ -1,8 +1,5 @@
 <link rel="import" href="/styles/plotly-style.html">
 
-
-<!--<link rel="import" href = "/imports/mathJax-import.html">-->
-
 <dom-module id="light-curve">
   <template>
 
@@ -11,6 +8,7 @@
     <style>
       #webcomp-container {
         background-color: white;
+        color: black;
       }
       #control-div {
         padding: 20px 20px 20px 20px;
@@ -18,56 +16,40 @@
       #debug-div {
 
       }
-      .grey_button {
-        background-color: #e7e7e7;
-        color: black;
-        margin-right: 15px;
-        margin-top: 10px;
-        padding: 12px 28px;
-        font-size: 16px;
-
-      }
-      .grey_button {
-          -webkit-transition-duration: 0.4s; /* Safari */
-          transition-duration: 0.4s;
-      }
-
-      .grey_button:hover {
-          background-color: white;
-          color: grey;
+      h3 {
+        margin-left: 5px;
       }
     </style>
-
+    <h3>Light curve</h3>
     <div id="webcomp-container">
       <!-- Controls buttons -->
       <div hidden$="[[!showcontrols]]" id="control-div">
         <div>
-          <button class="grey_button" on-click="increaseSlidingWindowSize">Increase window size by 1</a>
-          <button class="grey_button" on-click="decreaseSlidingWindowSize">Decrease window size by 1</a>
-          <button class="grey_button" on-click="setMaxSlidingWindowSize">Max window size</a>
-          <button class="grey_button" on-click="setMinSlidingWindowSize">Min window size</a>
+          <button href="#" on-click="setMaxSlidingWindowSize">Max window size</a>
+          <button href="#" on-click="setMinSlidingWindowSize">Min window size</a>
+        </div>
+        <div>
+          <button href="#" class="button8" on-click="increaseSlidingWindowSize">Increase window size by 1</a>
+          <button href="#" on-click="decreaseSlidingWindowSize">Decrease window size by 1</a>
         </div>
         <div>
           Tick distance: <input type="number" value=100 id="dtickInput"/>
-          <button class="grey_button" on-click="setTickDistance">Set ticks distance</button>
-          <button class="grey_button" on-click="setTickAutoMode">Set auto ticks distance</button>
+          <button href="#" on-click="setTickDistance">Set ticks distance</button>
+          <button href="#" on-click="setTickAutoMode">Set auto ticks distance</button>
         </div>
+        <p>Points on plot: [[countDataOnPlot]]</p>
+
+        <!--
         <div>
           <button class="grey_button" hidden$="[[annotationenabled]]" on-click="highlightsAnnotations">Shows upper limits</button>
-          <!--<button class="grey_button" hidden$="[[!annotationenabled]]" on-click="hideAnnotations">Hide the upper limits</button>-->
+          <button class="grey_button" hidden$="[[!annotationenabled]]" on-click="hideAnnotations">Hide the upper limits</button>
         </div>
+      -->
       </div>
 
       <!-- Plotly plot -->
       <div id="light-curve-div"></div> <!--style="{{stylestring}}-->
 
-
-
-          <br>
-          <br>
-          <br>
-          <br>
-          <br>
 
       <!-- Debug informations -->
       <div hidden$="[[!debug]]" id="debug-div">
@@ -77,9 +59,7 @@
               <div>
                 <p>Window size: [[slidingwindowsize]]</p>
                 <p>Sliding window range size: ([[slidingwindowminsize]] , [[slidingwindowmaxsize]])</p>
-                <p>Points on plot: [[countDataOnPlot]]</p>
                 <!--<p>Points plotted: [[countData]]</p>-->
-                <p>Classes number: [[classesnumber]]</p>
                 <p>Time taken to add the LAST point: [[performanceTime]]s </p>
               </div>
             </td>
@@ -105,6 +85,7 @@
         </table>
       </div>
     </div>
+    <br>
   </template>
 
 
@@ -298,13 +279,9 @@
             type: String,
             value: 'ylabel not set',
           },
-          classesnumber: {
-            type: Number,
-            value: 2
-          },
           slidingwindowsize: {
             type: Number,
-            value: 100
+            value: 10
           },
           slidingwindowmaxsize: {
             type: Number,
@@ -517,7 +494,9 @@
         this.countData += 1;
 
         // increment points on plot counter
-        this.countDataOnPlot += 1;
+        if(this.countDataOnPlot<this.slidingwindowsize)
+          this.countDataOnPlot += 1;
+
 
         // Annotations handling
         if(addUpperLimit)

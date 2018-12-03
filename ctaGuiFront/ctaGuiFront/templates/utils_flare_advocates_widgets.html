@@ -1,0 +1,244 @@
+<!-- ==================================================================================================== -->
+<!--  -->
+<!-- ==================================================================================================== -->
+<dom-module id="analysis-session-form">
+  <template>
+    <style include="app-theme"></style>
+
+    <style>
+      .container {
+        background: white;
+        color: black;
+      }
+      h3 {
+        margin-left: 5px;
+      }
+      :host {
+      }
+    </style>
+
+
+      <h3>
+        Select analysis data for streaming
+      </h3>
+      <div class="horizEle container" style="width:100%">
+        <div style="min-width:200px; width:50%">
+
+          <iron-form id="analysisSessionForm">
+            <form>
+
+              <div class="horizEle" style="width:100%">
+                <paper-input id='instrument' name="instrument" label="Select instrument" value='1' style="width:100%"></paper-input>
+              </div>
+              <div class="horizEle" style="width:100%">
+                <paper-input id='observation' name="observation" label="Select observation" value='2' style="width:100%"></paper-input>
+              </div>
+              <div class="horizEle" style="width:100%">
+                <paper-input id='analysis' name="analysis" label="Select Analysis" value='3' style="width:100%"></paper-input>
+              </div>
+
+              <iron-a11y-keys
+                  id="a11y" target="[[target]]" keys="enter" on-keys-pressed="submitForm">
+              </iron-a11y-keys>
+
+              <br>
+              <div class="horizEle centJustEle normalTxtButtonCntr" style="width:100%;">
+                <paper-button raised noink on-click=submitForm style="width:80%">Submit</paper-button>
+              </div>
+            </form>
+          </iron-form>
+          <br>
+          <div class="horizEle centJustEle normalTxtButtonCntr" style="width:100%;">
+            <paper-button raised noink on-click="stoplisten" style="width:80%">Stop listening</paper-button>
+          </div>
+          <div class="horizEle centJustEle normalTxtButtonCntr" style="width:100%;">
+            <paper-button raised noink on-click="topolino" style="width:80%">Print debug info</paper-button>
+          </div>
+          <br>
+        </div>
+        <br>
+      </div>
+
+  </template>
+
+
+  <script>
+    class AnalysisSessionForm extends Polymer.Element {
+      static get is() { return 'analysis-session-form' }
+
+      // -----------------------------------------------------------------------------------------------------------
+      // initial settings
+      // -----------------------------------------------------------------------------------------------------------
+      ready() {
+        super.ready();
+        var _this = this;
+        setTimeout(function() { _this._ready(); }.bind(this), 0);
+      }
+
+      // -----------------------------------------------------------------------------------------------------------
+      // once everything loads...
+      // -----------------------------------------------------------------------------------------------------------
+      _ready() {
+        var _this = this;
+        this.appPrefix = window.__appPrefix__;
+
+        /*
+        this.shadowRoot.querySelector('#analysisSessionForm').addEventListener('iron-form-presubmit', function() {
+          console.log('iron-form-presubmit',this.request.params);
+
+          // this.request.params['username'] = _this.shadowRoot.querySelector('#username').value;
+          // this.request.params['password'] = _this.shadowRoot.querySelector('#password').value;
+        });
+
+        this.shadowRoot.querySelector('#analysisSessionForm').addEventListener('iron-form-response', function (e) {
+          // console.log('iron-form-response',this.request.params);
+          // redirect to the index page (if the user and pass were nor correct, the
+          // index will bring us back again here)
+          //window.location.replace('/'+_this.appPrefix+'/index');
+          //console.log("Response!!", e)
+        });
+
+        return;
+        */
+      }
+
+      submitForm() {
+        var data = {
+          'instrument': this.shadowRoot.querySelector('#instrument').value,
+          'observation': this.shadowRoot.querySelector('#observation').value,
+          'analysis': this.shadowRoot.querySelector('#analysis').value
+        }
+        var event = new CustomEvent('form-submitted', {detail: data, bubbles: true, composed: true});
+        this.dispatchEvent(event);
+        //this.shadowRoot.querySelector('#analysisSessionForm').submit();
+        return;
+      }
+      stoplisten() {
+        var event = new CustomEvent('stop-data-stream', {bubbles: true, composed: true});
+        this.dispatchEvent(event);
+      }
+      topolino() {
+        var event = new CustomEvent('topolino', {bubbles: true, composed: true});
+        this.dispatchEvent(event);
+      }
+
+
+    }
+    customElements.define(AnalysisSessionForm.is, AnalysisSessionForm);
+  </script>
+</dom-module>
+
+
+
+
+
+<!-- ==================================================================================================== -->
+<!--  -->
+<!-- ==================================================================================================== -->
+<dom-module id="data-quality-form">
+  <template>
+    <style include="app-theme"></style>
+
+    <style>
+      .container {
+        background: white;
+        color: black;
+      }
+      h3 {
+        margin-left: 5px;
+      }
+      :host {
+      }
+    </style>
+
+
+      <h3>
+        Select data stream
+      </h3>
+      <div class="horizEle container" style="width:100%">
+        <div style="min-width:200px; width:50%">
+
+          <iron-form id="dataQualityForm">
+            <form>
+              <!--
+              <div class="horizEle" style="width:100%">
+                <paper-input id='instrument' name="instrument" label="Select instrument" value='1' style="width:100%"></paper-input>
+              </div>-->
+
+              <div class="horizEle" style="width:100%">
+                <paper-input id='instrument' name="instrument" label="Instrument" value='CTA' style="width:100%"></paper-input>
+              </div>
+
+              <div class="horizEle" style="width:100%">
+                <paper-input id='observation' name="observation" label="Observation" value='Crab source' style="width:100%"></paper-input>
+              </div>
+
+              <div class="horizEle" style="width:100%">
+                <paper-input id='datalevel' name="datalevel" label="Data level" value='DL1' style="width:100%"></paper-input>
+              </div>
+
+              <iron-a11y-keys
+                  id="a11y" target="[[target]]" keys="enter" on-keys-pressed="submitForm">
+              </iron-a11y-keys>
+
+              <br>
+              <div class="horizEle centJustEle normalTxtButtonCntr" style="width:100%;">
+                <paper-button raised noink on-click=submitForm style="width:80%">Submit</paper-button>
+              </div>
+            </form>
+          </iron-form>
+          <br>
+          <div class="horizEle centJustEle normalTxtButtonCntr" style="width:100%;">
+            <paper-button raised noink on-click="stoplisten" style="width:80%">Stop listening</paper-button>
+          </div>
+            <br>
+        </div>
+        <br>
+      </div>
+
+  </template>
+
+
+  <script>
+    class DataQualityForm extends Polymer.Element {
+      static get is() { return 'data-quality-form' }
+
+      // -----------------------------------------------------------------------------------------------------------
+      // initial settings
+      // -----------------------------------------------------------------------------------------------------------
+      ready() {
+        super.ready();
+        var _this = this;
+        setTimeout(function() { _this._ready(); }.bind(this), 0);
+      }
+
+      // -----------------------------------------------------------------------------------------------------------
+      // once everything loads...
+      // -----------------------------------------------------------------------------------------------------------
+      _ready() {
+        var _this = this;
+        this.appPrefix = window.__appPrefix__;
+      }
+
+      submitForm() {
+        var data = {
+          'instrument': 1,//this.shadowRoot.querySelector('#instrument').value,
+          'observation': 2,//this.shadowRoot.querySelector('#observation').value,
+          'datalevel': 3,//this.shadowRoot.querySelector('#datalevel').value
+      }
+        var event = new CustomEvent('form-submitted', {detail: data, bubbles: true, composed: true});
+        this.dispatchEvent(event);
+        //this.shadowRoot.querySelector('#dataForm').submit();
+        return;
+      }
+      stoplisten() {
+        var event = new CustomEvent('stop-data-stream', {bubbles: true, composed: true});
+        this.dispatchEvent(event);
+      }
+
+
+
+    }
+    customElements.define(DataQualityForm.is, DataQualityForm);
+  </script>
+</dom-module>

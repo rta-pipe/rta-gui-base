@@ -1,13 +1,26 @@
+<link rel="import" href="/bower_components/polymer/polymer-element.html">
+
+<!-- web components dependencies  -->
+<link rel="import" href="/bower_components/bwt-datatable/bwt-datatable.html">
+<link rel="import" href="/bower_components/bwt-datatable/bwt-datatable-card.html">
+<link rel="import" href="/bower_components/web-animations-js/web-animations-next.min.html">
 <!--
 TODO
-- - - - - AITOFF
-  fitsfile = images_array[i].substr(0, images_array[i].lastIndexOf("sky1.png")) + "cube.fits";
-  dataSet[i][j] = '<button type="submit" iduo ="open" onclick="goToImage('+i+');" class="btn btn-success">Select Map</button>';
-  dataSet[i][j] = "<button onclick=\"loadNewJs9LightWindow('"+fitsfile+"')\" class='btn btn-success'>Analize</button>";
 
-- - - - - JS9
 
-- - - - - ADDING https://www.webcomponents.org/element/IftachSadeh/paper-range-slider for property filtering on SEARCH
+AITOFF
+/*
+fitsfile = images_array[i].substr(0, images_array[i].lastIndexOf("sky1.png")) + "cube.fits";
+dataSet[i][j] = '<button type="submit" iduo ="open" onclick="goToImage('+i+');" class="btn btn-success">Select Map</button>';
+dataSet[i][j] = "<button onclick=\"loadNewJs9LightWindow('"+fitsfile+"')\" class='btn btn-success'>Analize</button>";
+*/
+
+
+JS9
+
+
+ADDING https://www.webcomponents.org/element/IftachSadeh/paper-range-slider
+for property filtering on SEARCH
 -->
 
 <dom-module id="rta-detection-datatable">
@@ -75,7 +88,7 @@ TODO
       constructor() {
         super();
         this.plotName = 'rta-detection-datatable-div';
-        this._fetchNewData = true;
+        this._fetchNewData = false;
         this.all_data_to_show = [];
         this.dataSource = {};
       }
@@ -313,45 +326,50 @@ TODO
       // @Public
       addRow(json_row) {
 
-        if( json_row.hasOwnProperty('dec') &&
-            json_row.hasOwnProperty('detectionid') &&
-            json_row.hasOwnProperty('flux_err') &&
-            json_row.hasOwnProperty('label') &&
-            json_row.hasOwnProperty('ra') &&
-            json_row.hasOwnProperty('sqrtts') &&
-            json_row.hasOwnProperty('t_start_mjd') &&
-            json_row.hasOwnProperty('t_stop_mjd') &&
-            json_row.hasOwnProperty('t_start_tt') &&
-            json_row.hasOwnProperty('t_stop_tt') &&
-            json_row.hasOwnProperty('x') &&
-            json_row.hasOwnProperty('y')
-         ){
+        if( ! json_row.hasOwnProperty('dec'))
+            json_row['dec']=''
+        if(! json_row.hasOwnProperty('detectionid'))
+            json_row['detectionid']=''
+        if(! json_row.hasOwnProperty('flux_err'))
+            json_row['flux_err']=''
+        if(! json_row.hasOwnProperty('label') )
+            json_row['label']=''
+        if(! json_row.hasOwnProperty('ra') )
+            json_row['ra']=''
+        if(! json_row.hasOwnProperty('sqrtts') )
+            json_row['sqrtts']=''
+        if(! json_row.hasOwnProperty('t_start_mjd') )
+            json_row['t_start_mjd']=''
+        if(! json_row.hasOwnProperty('t_stop_mjd') )
+            json_row['t_stop_mjd']=''
+        if(! json_row.hasOwnProperty('t_start_tt') )
+            json_row['t_start_tt']=''
+        if(! json_row.hasOwnProperty('t_stop_tt') )
+            json_row['t_stop_tt']=''
+        if(! json_row.hasOwnProperty('x') )
+            json_row['x']=''
+        if(! json_row.hasOwnProperty('y'))
+            json_row['y']=''
 
-            json_row["flux"]={};
-            json_row["flux"]["y"]=json_row["y"];
-            json_row["flux"]["flux_err"]=json_row["flux_err"];
+          json_row["flux"]={};
+          json_row["flux"]["y"]=json_row["y"];
+          json_row["flux"]["flux_err"]=json_row["flux_err"];
 
-            json_row["t_mjd"]={};
-            json_row["t_mjd"]["t_start_mjd"]=json_row["t_start_mjd"];
-            json_row["t_mjd"]["t_stop_mjd"]=json_row["t_stop_mjd"];
+          json_row["t_mjd"]={};
+          json_row["t_mjd"]["t_start_mjd"]=json_row["t_start_mjd"];
+          json_row["t_mjd"]["t_stop_mjd"]=json_row["t_stop_mjd"];
 
-            json_row["t_tt"]={};
-            json_row["t_tt"]["t_start_tt"]=json_row["t_start_tt"];
-            json_row["t_tt"]["t_stop_tt"]=json_row["t_stop_tt"];
+          json_row["t_tt"]={};
+          json_row["t_tt"]["t_start_tt"]=json_row["t_start_tt"];
+          json_row["t_tt"]["t_stop_tt"]=json_row["t_stop_tt"];
 
-            this.set('dataSource.length', this.all_data_to_show.length+1);
-            this.all_data_to_show.push(json_row);
+          this.set('dataSource.length', this.all_data_to_show.length+1);
+          this.all_data_to_show.push(json_row);
 
-            this. _getDatatable().retrieveVisibleData();
+          this. _getDatatable().retrieveVisibleData();
 
-            this. _getDatatable().firstPage();
+          this. _getDatatable().firstPage();
 
-
-
-         }
-         else {
-           console.log("The input row does not have all the required keys.")
-         }
       }
 
 
